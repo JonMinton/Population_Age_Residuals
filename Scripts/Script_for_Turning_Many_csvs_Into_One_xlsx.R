@@ -14,22 +14,7 @@ files.rm <- list.files("Outputs/Raw/Residuals/Male", pattern="*.csv")
 files.rf <- list.files("Outputs/Raw/Residuals/Female", pattern="*.csv")
 files.rt <- list.files("Outputs/Raw/Residuals/Total", pattern="*.csv")
 
-Make_Excel_Workbook <- function(dir_location, files_list, wb_name){
-    n.files <- length(files_list)
-    wb <- createWorkbook()
-    
-    for (i in 1:n.files){
-        this_csv <- read.csv(paste0(dir_location, files_list[i]))
-        
-        this_sheetname <- strsplit(files_list[i], "[.]")[[1]][1]
-        
-        sheet <- createSheet(wb, sheetName=this_sheetname)
-        
-        addDataFrame(this_csv, sheet)
-    }
-    saveWorkbook(wb, file=paste0(wb_name, ".xlsx"))
-    print("Done")
-}
+
 
 Make_Excel_Workbook("Figures/Expectations/Male/", files.em, "Expectations_Males")
 Make_Excel_Workbook("Figures/Expectations/Female/", files.ef, "Expectations_Females")

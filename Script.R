@@ -1,54 +1,125 @@
+rm(list=ls())
+
+
+###########################################################################################################
+###########################################################################################################
 # Run some of the existing scripts and analyses using the newer data : use this to produce the 
 # derived data 
 
-require(xlsx)
-require (plyr)
-require(reshape2)
-require(ggplot2)
-require(lattice)
-require(repmis)
+source("Scripts/LoadPackages.R")
+
+RequiredPackages(
+  c(
+    "xlsx",
+    "plyr",
+    "reshape2",
+    "lattice",
+    "repmis",
+    "RCurl",
+    "devtools",
+    "httr",
+    "digest",
+    "ggplot2"
+    )
+  )
 
 
 
-# require("xlsx")
-# Country_Codes <- read.xlsx(
-#     file="Data/CountryCodes.xlsx",
-#     sheetName="Country_Codes"
-#     )
-# 
+############################################################################################################
+############################################################################################################
 
 
 source("Scripts/Functions.r")
-source("Scripts/Make_Derived_Data_Function.R")
 source("Scripts/Script_for_Producing_Raw_Analyses.R")
+
+############################################################################################################
+############################################################################################################
 
 
 load("Data/RObj/Expectations_and_Residuals.RData")
 
-names(Outfile$expectations$male) <- Country.Codes[,1]
-names(Outfile$expectations$female) <- Country.Codes[,1]
-names(Outfile$expectations$total) <- Country.Codes[,1]
-names(Outfile$residuals$male) <- Country.Codes[,1]
-names(Outfile$residuals$female) <- Country.Codes[,1]
-names(Outfile$residuals$total) <- Country.Codes[,1]
+country_codes <- read.csv("Data/HMD/country_codes__new.csv", stringsAsFactors=FALSE)
+
+europe_indicators <- country_codes$short[country_codes$europe==T]  
+
+names(Outlist$expectations$male) <- country_codes$short
+names(Outlist$expectations$female) <- country_codes$short
+names(Outlist$expectations$total) <- country_codes$short
+names(Outlist$residuals$male) <- country_codes$short
+names(Outlist$residuals$female) <- country_codes$short
+names(Outlist$residuals$total) <- country_codes$short
 
 
-Europe_Indicators <- c(
-    2,  3,  4,  7,  9,  11, 13, 14, 15, 16,
-    18, 19, 21, 23, 24, 25, 28, 30, 31, 32,
-    33, 34, 38, 39, 41, 42, 43
-)
+eu_res_male <- Outlist$residuals$male[europe_indicators]
+eu_res_female <- Outlist$residuals$female[europe_indicators]
+eu_res_total <- Outlist$residuals$total[europe_indicators]
 
-Outlist_subset <- list(
-    expectations=list(
-        male=Outlist$expectations$male[Europe_Indicators],
-        female=Outlist$expectations$female[Europe_Indicators],
-        total=Outlist$expectations$total[Europe_Indicators]
-    ),
-    residuals=list(
-        male=Outlist$residuals$male[Europe_Indicators],
-        female=Outlist$residuals$female[Europe_Indicators],
-        total=Outlist$residuals$total[Europe_Indicators]
-    )
-)
+# I want the following long format dataframe
+
+# identifiers
+#  country, gender, age, year
+# value: quantity
+
+fm <- function(x){
+  out <- melt(x, varnames=c("age", "year"), value.name="residual")
+  out <- data.frame(out, sex="male")
+  return(out)            
+}
+
+ff <- function(x){
+  out <- melt(x, varnames=c("age", "year"), value.name="residual")
+  out <- data.frame(out, sex="female")
+  return(out)            
+}
+
+ft <- function(x){
+  out <- melt(x, varnames=c("age", "year"), value.name="residual")
+  out <- data.frame(out, sex="total")
+  return(out)            
+}
+
+dta_long_male <- ldply(
+  eu_res_male,
+  fm
+  )
+
+names(dta_long_male)[1] <- "country"
+
+dta_long_female <- ldply(
+  eu_res_female,
+  ff
+  )
+
+names(dta_long_female)[1] <- "country"
+
+dta_long_total <- ldply(
+  eu_res_total,
+  ft
+  )
+
+names(dta_long_total)[1] <- "country"
+
+dta_long <- rbind(dta_long_male, dta_long_female, dta_long_total)
+
+rm(dta_long_male, dta_long_female, dta_long_total)
+
+dta_long2 <- melt(dta_long, id.var=c(1,2,3,5))
+dta_wide <- dcast(dta_long2, country + age + year ~ sex)
+
+# g <- ggplot(subset(dta_wide, year > 1995)) + aes(x=year, y=male, group=age)
+
+# dta_wide2 <- data.frame(dta_long2, age_group=cut_interval(dta_wide$age, 10))
+
+
+g <- ggplot(subset(dta_long2, year > 1995)) + aes(x=year, y=value, group=age, colour=age)
+g + geom_line() + facet_grid(country ~ sex) + coord_flip()
+
+ggsave("Figures/All_Lattice.png")
+
+
+### What I want: 
+# for each country,
+ # for years from 1990 onwards
+
+# relationship between residuals and time
 

@@ -12,61 +12,7 @@ Make_Derived_Data(
 )
 
 
-# short                         long
-# 1   AUS                    Australia
-# 2   AUT                      Austria **
-# 3      BEL                      Belgium **
-# 4      BGR                     Bulgaria **
-# 5      BLR                      Belarus 
-# 6      CAN                       Canada
-# 7      CHE                  Switzerland **
-# 8      CHL                        Chile
-# 9      CZE               Czech Republic **
-# 10   DEUTE                 East Germany
-# 11  DEUTNP                      Germany **
-# 12   DEUTW                 West Germany
-# 13     DNK                      Denmark **
-# 14     ESP                        Spain **
-# 15     EST                      Estonia **
-# 16     FIN                      Finland **
-# 17  FRACNP                       France (Civilian)
-# 18  FRATNP                       France (Total) **
-# 19 GBR_NIR             Northern Ireland **
-# 20  GBR_NP               United Kingdom
-# 21 GBR_SCO                     Scotland **
-# 22 GBRCENW            England and Wales (Civilian) 
-# 23 GBRTENW            England and Wales (Total) **
-# 24     HUN                      Hungary **
-# 25     IRL                      Ireland **
-# 26     ISL                      Iceland
-# 27     ISR                       Israel
-# 28     ITA                        Italy **
-# 29     JPN                        Japan
-# 30     LTU                    Lithuania **
-# 31     LUX                   Luxembourg **
-# 32     LVA                       Latvia **
-# 33     NLD                  Netherlands **
-# 34     NOR                       Norway **
-# 35  NZL_MA         New Zealand -- Maori
-# 36  NZL_NM     New Zealand -- Non-Maori
-# 37  NZL_NP                  New Zealand
-# 38     POL                       Poland **
-# 39     PRT                     Portugal **
-# 40     RUS                       Russia 
-# 41     SVK                     Slovakia **
-# 42     SVN                     Slovenia **
-# 43     SWE                       Sweden **
-# 44     TWN                       Taiwan
-# 45     UKR                      Ukraine 
-# 46     USA The United States of America    
 
-Europe_Indicators <- c(
-    2,  3,  4,  7,  9,  11, 13, 14, 15, 16,
-    18, 19, 21, 23, 24, 25, 28, 30, 31, 32,
-    33, 34, 38, 39, 41, 42, 43
-)
-
-Outlist_subset <- Outlist[Europe_Indicators]
 
 # Want to also know for which countries the data go to either 2010 or 2011
 
@@ -277,4 +223,94 @@ addDataFrame(
 
 
 saveWorkbook(wb, file="Rearranged_Data.xlsx")
+
+
+
+
+# require("xlsx")
+# Country_Codes <- read.xlsx(
+#     file="Data/CountryCodes.xlsx",
+#     sheetName="Country_Codes"
+#     )
+# 
+
+###############################################################################################################
+# 
+# 
+# # Now to save this all to .csv files
+# 
+# dir.create("/Users/JonMinton/Google Drive/PROJECTS/Age Residuals/")
+# 
+# dir.create("/Users/JonMinton/Google Drive/PROJECTS/Age Residuals/Residuals/")
+# dir.create("/Users/JonMinton/Google Drive/PROJECTS/Age Residuals/Expectations/")
+# 
+# dir.create("/Users/JonMinton/Google Drive/PROJECTS/Age Residuals/Residuals/Male/")
+# dir.create("/Users/JonMinton/Google Drive/PROJECTS/Age Residuals/Residuals/Female/")
+# dir.create("/Users/JonMinton/Google Drive/PROJECTS/Age Residuals/Residuals/Total/")
+# 
+# dir.create("/Users/JonMinton/Google Drive/PROJECTS/Age Residuals/Expectations/Male/")
+# dir.create("/Users/JonMinton/Google Drive/PROJECTS/Age Residuals/Expectations/Female/")
+# dir.create("/Users/JonMinton/Google Drive/PROJECTS/Age Residuals/Expectations/Total/")
+# 
+# 
+# 
+# 
+# 
+# for (i in 1:N.countries){
+#     
+#     write.csv(
+#         residuals.male.list[[i]],
+#         file=paste0(
+#             "/Users/JonMinton/Google Drive/PROJECTS/Age Residuals/Residuals/Male/",
+#             Country.Codes[i,1], "_Residuals_Males.csv"
+#         )
+#     )
+#     
+#     write.csv(
+#         residuals.female.list[[i]],
+#         file=paste0(
+#             "/Users/JonMinton/Google Drive/PROJECTS/Age Residuals/Residuals/Female/",
+#             Country.Codes[i,1], "_Residuals_Females.csv"
+#         )
+#     )
+#     
+#     write.csv(
+#         residuals.total.list[[i]],
+#         file=paste0(
+#             "/Users/JonMinton/Google Drive/PROJECTS/Age Residuals/Residuals/Total/",
+#             Country.Codes[i,1], "_Residuals_Total.csv"
+#         )
+#     )
+#     
+#     
+#     write.csv(
+#         expected.male.list[[i]],
+#         file=paste0(
+#             "/Users/JonMinton/Google Drive/PROJECTS/Age Residuals/Expectations/Male/",
+#             Country.Codes[i,1], "_Expectations_Males.csv"
+#         )
+#     )
+#     
+#     write.csv(
+#         expected.female.list[[i]],
+#         file=paste0(
+#             "/Users/JonMinton/Google Drive/PROJECTS/Age Residuals/Expectations/Female/",
+#             Country.Codes[i,1], "_Expectations_Females.csv"
+#         )
+#     )
+#     
+#     write.csv(
+#         expected.total.list[[i]],
+#         file=paste0(
+#             "/Users/JonMinton/Google Drive/PROJECTS/Age Residuals/Expectations/Total/",
+#             Country.Codes[i,1], "_Expectations_Total.csv"
+#         )
+#     )
+#     
+# }
+# 
+# 
+# write.csv(Country.Codes,
+#           file="/Users/JonMinton/Google Drive/PROJECTS/Age Residuals/Country Codes.csv"
+# )
 

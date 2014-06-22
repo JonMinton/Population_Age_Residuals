@@ -689,11 +689,6 @@ download_file_url <- function (
     outfile,
     ..., sha1 = NULL) 
 {
-    require(RCurl)
-    require(devtools)
-    require(repmis)
-    require(httr)
-    require(digest)
     
     stopifnot(is.character(url), length(url) == 1)
     filetag <- file(outfile, "wb")
@@ -701,4 +696,144 @@ download_file_url <- function (
     stop_for_status(request)
     writeBin(content(request, type = "raw"), filetag)
     close(filetag)
+}
+
+
+
+
+# Let's look at people aged under 80 years
+
+#  Start with one country and then generalise
+
+Make_Residuals_and_Expectations <- function(
+  Country.Codes,
+  Populations.numeric,
+  Deaths.numeric,
+  max_age=80
+){
+  N.countries <- dim(Country.Codes)[1]
+  
+  
+  residuals.male.list <- vector("list", length=dim(Country.Codes)[1])
+  names(residuals.male.list) <- as.character(Country.Codes[,1])
+  
+  residuals.total.list <- residuals.female.list <- residuals.male.list    
+  expected.male.list <- residuals.total.list
+  expected.total.list <- expected.female.list <- expected.male.list
+  
+  for (cntry in 1:N.countries){
+    pops.ds <- Populations.numeric[[Country.Codes[cntry,1]]]
+    pops.ds <- subset(pops.ds, Age <= max_age) 
+    pops.ds$Year <- as.numeric(pops.ds$Year)
+    
+    deaths.ds <- Deaths.numeric[[Country.Codes[cntry,1]]]
+    deaths.ds <- subset(deaths.ds, Age <= max_age)
+    deaths.ds$Year <- as.numeric(deaths.ds$Year)
+    
+    years <- intersect(unique(pops.ds$Year), unique(deaths.ds$Year))
+    ages <- intersect(unique(pops.ds$Age), unique(deaths.ds$Age))
+    
+    expected.ds.male <- matrix(NA,
+                               nrow=length(ages) - 1,
+                               ncol=length(years) - 1
+    )
+    
+    dimnames(expected.ds.male) <- list(
+      ages[-1],
+      years[-1]
+    )
+    
+    expected.ds.total <- expected.ds.female <- expected.ds.male
+    residual.ds.total <- residual.ds.female <- residual.ds.male <- expected.ds.total
+    
+    for (i in 2:length(ages)){
+      for (j in 2:length(years)){
+        last.age <- ages[i-1]
+        last.year <- years[j-1]
+        this.age <- ages[i]
+        this.year <- years[j]
+        
+        tmp1 <- subset(pops.ds, Age==last.age & Year == last.year)
+        if (dim(tmp1)[1]!=1) break
+        
+        lives.expected.male  <- tmp1$Male
+        lives.expected.female <- tmp1$Female
+        lives.expected.total <- tmp1$Total
+        
+        tmp2 <- subset(deaths.ds, Age==last.age & Year==last.year)
+        if (dim(tmp2)[1]!=1) break
+        
+        deaths.reported.male <- tmp2$Male
+        deaths.reported.female <- tmp2$Female
+        deaths.reported.total <- tmp2$Total
+        
+        lives.expected.male <- lives.expected.male - deaths.reported.male
+        lives.expected.female <- lives.expected.female - deaths.reported.female
+        lives.expected.total <- lives.expected.total - deaths.reported.total
+        
+        if (length(lives.expected.male)==1){   expected.ds.male[ i - 1, j - 1] <- lives.expected.male }
+        if (length(lives.expected.female)==1) { expected.ds.female[i - 1, j - 1] <- lives.expected.female}
+        if (length(lives.expected.total)==1) { expected.ds.total[i - 1, j -1 ] <- lives.expected.total}            
+        
+        tmp3 <- subset(pops.ds, Age==this.age & Year==this.year)
+        if (dim(tmp3)[1]!=1) break
+        
+        lives.actual.male <- tmp3$Male
+        lives.actual.female <- tmp3$Female
+        lives.actual.total <- tmp3$Total
+        
+        lives.residual.male <- lives.expected.male - lives.actual.male
+        lives.residual.female <- lives.expected.female - lives.actual.female
+        lives.residual.total <- lives.expected.total - lives.actual.total
+        
+        
+        
+        if (length(lives.residual.male)==1) { residual.ds.male[   i - 1, j - 1] <- lives.residual.male }
+        if (length(lives.residual.female)==1) { residual.ds.female[i - 1, j - 1] <- lives.residual.female}
+        if (length(lives.residual.total)==1) {residual.ds.total[i - 1, j - 1] <- lives.residual.total}
+      }
+    }
+    
+    
+    residuals.male.list[[cntry]] <- residual.ds.male
+    residuals.female.list[[cntry]] <- residual.ds.female
+    residuals.total.list[[cntry]] <- residual.ds.total
+    
+    expected.male.list[[cntry]] <- expected.ds.male
+    expected.female.list[[cntry]] <- expected.ds.female
+    expected.total.list[[cntry]] <- expected.ds.total
+    
+  }
+  outlist <- list(
+    residuals=list(
+      male=residuals.male.list,
+      female=residuals.female.list,
+      total=residuals.total.list
+    ),
+    expectations=list(
+      male=expected.male.list,
+      female=expected.female.list,
+      total=expected.total.list
+    )
+  )
+  return(outlist)
+}
+
+
+
+Make_Excel_Workbook <- function(dir_location, files_list, wb_name){
+  n.files <- length(files_list)
+  wb <- createWorkbook()
+  
+  for (i in 1:n.files){
+    this_csv <- read.csv(paste0(dir_location, files_list[i]))
+    
+    this_sheetname <- strsplit(files_list[i], "[.]")[[1]][1]
+    
+    sheet <- createSheet(wb, sheetName=this_sheetname)
+    
+    addDataFrame(this_csv, sheet)
+  }
+  saveWorkbook(wb, file=paste0(wb_name, ".xlsx"))
+  print("Done")
 }
