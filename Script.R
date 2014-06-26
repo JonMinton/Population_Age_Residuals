@@ -177,7 +177,7 @@ rm(dta_long_male, dta_long_female, dta_long_total)
 dta_long2 <- melt(dta_long, id.var=c("country", "age", "year", "sex"))
 dta_wide <- dcast(dta_long2, country + age + year ~ sex)
 
-<<<<<<< HEAD
+
 
 dta_res_tidy <- dta_long2
 
@@ -228,42 +228,6 @@ dta_tidy <- mutate(dta_tidy, residual_proportion=residual/expectation)
 
 save(dta_tidy, file="Data/RObj/Tidy_Data.RData")
 
-
-####################
-## contour plot
-load("Data/RObj/Tidy_Data.RData")
-
-g <- ggplot(subset(dta_tidy, year > 2000 & sex=="male")) + aes(x=year, y=age, z=residual_proportion)
-g2 <- g + geom_tile(aes(fill=residual_proportion)) + facet_wrap ( ~ country, nrow=4)
-g3 <- g2 + scale_fill_gradientn(
-  colours=c("blue", "white", "red"), limits=c(-0.15, 0.15)
-  )
-print (g3)
-
-ggsave("Figures/Tile_Male.png")
-
-#################
-g <- ggplot(subset(dta_tidy, year > 2000 & sex=="female")) + aes(x=year, y=age, z=residual_proportion)
-g2 <- g + geom_tile(aes(fill=residual_proportion)) + facet_wrap ( ~ country, nrow=4)
-g3 <- g2 + scale_fill_gradientn(
-  colours=c("blue", "white", "red"), limits=c(-0.15, 0.15)
-)
-print (g3)
-
-ggsave("Figures/Tile_Female.png")
-
-########
-g <- ggplot(subset(dta_tidy, year > 2000 & sex=="total")) + aes(x=year, y=age, z=residual_proportion)
-g2 <- g + geom_tile(aes(fill=residual_proportion)) + facet_wrap ( ~ country, nrow=4)
-g3 <- g2 + scale_fill_gradientn(
-  colours=c("blue", "white", "red"), limits=c(-0.15, 0.15)
-)
-print (g3)
-
-ggsave("Figures/Tile_Total.png")
-
-
-=======
 
 dta_res_tidy <- dta_long2
 
