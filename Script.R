@@ -40,7 +40,7 @@ load("Data/RObj/Tidy_Data.RData")
 dta_agg <- ddply(dta_tidy, .(age, year, sex), summarise, residual=sum(residual), expectation=sum(expectation))
 dta_agg$residual_proportion <- dta_agg$residual / dta_agg$expectation
 
-g <- ggplot(subset(dta_agg, year > 1990)) + aes(x=year, y= age, z=residual_proportion)
+g <- ggplot(subset(dta_agg, year >= 1990)) + aes(x=year, y= age, z=residual_proportion)
 g2 <- g + geom_tile(aes(fill=residual_proportion)) + facet_wrap( ~ sex)
 g3 <- g2 + scale_fill_gradientn(
   colours=c("blue", "white", "red")
@@ -50,6 +50,26 @@ print(g3)
 ggsave("Figures/Tile_Countries_Combined.png")
 
 
+g <- ggplot(subset(dta_agg, year >= 1970)) + aes(x=year, y= age, z=residual_proportion)
+g2 <- g + geom_tile(aes(fill=residual_proportion)) + facet_wrap( ~ sex)
+g3 <- g2 + scale_fill_gradientn(
+  colours=c("red", "white", "blue"),
+  limits=c(-0.025, 0.025)
+)
+print(g3)
+
+ggsave("Figures/Tile_Countries_Combined_from1970.png")
+
+
+g <- ggplot(subset(dta_agg, year >= 1950)) + aes(x=year, y= age, z=residual_proportion)
+g2 <- g + geom_tile(aes(fill=residual_proportion)) + facet_wrap( ~ sex)
+g3 <- g2 + scale_fill_gradientn(
+  colours=c("red", "white", "blue"),
+  limits=c(-0.025, 0.025)
+)
+print(g3)
+
+ggsave("Figures/Tile_Countries_Combined_from1950.png")
 ####################
 ## contour plot
 load("Data/RObj/Tidy_Data.RData")
@@ -57,7 +77,7 @@ load("Data/RObj/Tidy_Data.RData")
 g <- ggplot(subset(dta_tidy, year > 2000 & sex=="male")) + aes(x=year, y=age, z=residual_proportion)
 g2 <- g + geom_tile(aes(fill=residual_proportion)) + facet_wrap ( ~ country, nrow=4)
 g3 <- g2 + scale_fill_gradientn(
-  colours=c("blue", "white", "red"), limits=c(-0.15, 0.15)
+  colours=c("red", "white", "blue"), limits=c(-0.15, 0.15)
 )
 print (g3)
 
@@ -67,7 +87,7 @@ ggsave("Figures/Tile_Male.png")
 g <- ggplot(subset(dta_tidy, year > 2000 & sex=="female")) + aes(x=year, y=age, z=residual_proportion)
 g2 <- g + geom_tile(aes(fill=residual_proportion)) + facet_wrap ( ~ country, nrow=4)
 g3 <- g2 + scale_fill_gradientn(
-  colours=c("blue", "white", "red"), limits=c(-0.15, 0.15)
+  colours=c("red", "white", "blue"), limits=c(-0.15, 0.15)
 )
 print (g3)
 
@@ -77,7 +97,7 @@ ggsave("Figures/Tile_Female.png")
 g <- ggplot(subset(dta_tidy, year > 2000 & sex=="total")) + aes(x=year, y=age, z=residual_proportion)
 g2 <- g + geom_tile(aes(fill=residual_proportion)) + facet_wrap ( ~ country, nrow=4)
 g3 <- g2 + scale_fill_gradientn(
-  colours=c("blue", "white", "red"), limits=c(-0.15, 0.15)
+  colours=c("red", "white", "blue"), limits=c(-0.15, 0.15)
 )
 print (g3)
 
