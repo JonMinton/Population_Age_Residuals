@@ -19,7 +19,8 @@ RequiredPackages(
     "devtools",
     "httr",
     "digest",
-    "ggplot2"
+    "ggplot2",
+    "stringr"
     )
   )
 
@@ -34,10 +35,19 @@ source("Scripts/Script_for_Producing_Raw_Analyses.R")
 
 ############################################################################################################
 ############################################################################################################
+load("Data/RObj/Tidy_Data.RData")
 
+dta_agg <- ddply(dta_tidy, .(age, year, sex), summarise, residual=sum(residual), expectation=sum(expectation))
+dta_agg$residual_proportion <- dta_agg$residual / dta_agg$expectation
 
+g <- ggplot(subset(dta_agg, year > 1990)) + aes(x=year, y= age, z=residual_proportion)
+g2 <- g + geom_tile(aes(fill=residual_proportion)) + facet_wrap( ~ sex)
+g3 <- g2 + scale_fill_gradientn(
+  colours=c("blue", "white", "red")
+  )
+print(g3)
 
-
+ggsave("Figures/Tile_Countries_Combined.png")
 
 
 ####################
