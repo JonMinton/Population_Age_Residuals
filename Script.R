@@ -1,5 +1,12 @@
 rm(list=ls())
 
+##########################################################################################################
+# Tasks
+
+# 1) Script for checking and loading tidy data
+# 2) script for creating tidy data if it cannot be loaded
+
+
 
 ###########################################################################################################
 ###########################################################################################################
@@ -26,6 +33,8 @@ RequiredPackages(
 
 
 
+
+
 ############################################################################################################
 ############################################################################################################
 
@@ -36,14 +45,67 @@ source("Scripts/Script_for_Producing_Raw_Analyses.R")
 ############################################################################################################
 ############################################################################################################
 load("Data/RObj/Tidy_Data.RData")
+load("Data/RObj/counts_and_rates.RData")
 
-dta_agg <- ddply(dta_tidy, .(age, year, sex), summarise, residual=sum(residual), expectation=sum(expectation))
-dta_agg$residual_proportion <- dta_agg$residual / dta_agg$expectation
+# I want to create a subset of deathrates_tidy and counts_tidy for European countries only
+
+# 
+
+country_codes <- read.csv("Data/HMD/country_codes__new.csv", stringsAsFactors=FALSE)
+
+europe_indicators <- country_codes$short[country_codes$europe==T] 
+
+counts_europe <- subset(counts_tidy, subset=country %in% europe_indicators)
+
+counts_europe_aggregated <- ddply(counts_europe, .(year, age, sex), 
+                                  summarise, 
+                                  death_count=sum(death_count),
+                                  population_count=sum(population_count),
+                                  death_rate =death_count / population_count
+                                  )
+
+
+
+########################################################################
+
+
+europe_residuals_aggregated <- ddply(dta_tidy, .(age, year, sex), summarise,
+                 countries_observed=length(residual),
+                 residual=sum(residual), 
+                 expectation=sum(expectation),
+                 residual_proportion = residual/expectation
+                                  )
+
+joined_data_aggregated <- join(
+  counts_europe_aggregated, europe_residuals_aggregated, 
+                    by=c("year", "age", "sex"),
+  type="inner"
+  )
+
+joined_data_aggregated <- arrange(joined_data_aggregated, 
+                                  year, sex, age
+                                  )
+
+g <- ggplot(subset(joined_data_aggregated, subset=year >=1990 & age >20 & age < 45 & sex !="total")) 
+g2 <- g + aes(x=residual_proportion, y=log(death_rate), colour=sex)
+g3 <- g2 + geom_line() + facet_wrap( ~ year, nrow=3)
+print(g3)
+
+ggsave("Figures/lines_residual_deathrates.png")
+
+
+# now I want something that adds points for each country to 
+# g3 above
+
+
+####################################################################################
+
+
 
 g <- ggplot(subset(dta_agg, year >= 1990)) + aes(x=year, y= age, z=residual_proportion)
 g2 <- g + geom_tile(aes(fill=residual_proportion)) + facet_wrap( ~ sex)
 g3 <- g2 + scale_fill_gradientn(
-  colours=c("blue", "white", "red")
+  colours=c("red", "white", "blue")
   )
 print(g3)
 
@@ -113,6 +175,13 @@ print(g2)
 ggsave("Figures/All_Lattice.png")
 
 
+#####################################################################################################
+#####################################################################################################
+
+
+
+#####################################################################################################
+#####################################################################################################
 
 # # log on y axis
 # 
