@@ -1,7 +1,13 @@
 rm(list=ls())
 
+# Suggested in: 
+#https://github.com/skardhamar/rga/issues/6
+options(RCurlOptions = list(verbose = FALSE, capath = system.file("CurlSSL", "cacert.pem", package = "RCurl"), ssl.verifypeer = FALSE))
+
 ##########################################################################################################
 # Tasks
+
+
 
 # 1) Script for checking and loading tidy data
 # 2) script for creating tidy data if it cannot be loaded
@@ -39,17 +45,29 @@ RequiredPackages(
 ############################################################################################################
 
 
-source("Scripts/Functions.r")
-source("Scripts/Script_for_Producing_Raw_Analyses.R")
+source("Scripts/functions.r")
 
-############################################################################################################
-############################################################################################################
-load("Data/RObj/Tidy_Data.RData")
-load("Data/RObj/counts_and_rates.RData")
+# Have 'tidy' files been found?
+source("Scripts/manage_data.r")
+
+
 
 # I want to create a subset of deathrates_tidy and counts_tidy for European countries only
 
 # 
+
+#   Maybe draw a single overview graph, with lines again, and with the Y axis 
+# still being death rates - but the X axis  being year 1990-2008. An a separate 
+# line for each single year of age and sex.
+# 
+# In other words just one line for women aged 25 on the graph with the 
+# height of points being death rates and the X position be year. It should 
+# work with so many lines as they tend to be parallel. lines will bend quickly 
+# down towards 2008 as mortality rates of the youngest age groups drop quickly 
+# in recent years - quicker than makes much sense unless there is a problem 
+# with the data.
+
+
 
 country_codes <- read.csv("Data/HMD/country_codes__new.csv", stringsAsFactors=FALSE)
 
@@ -377,4 +395,41 @@ dta_tidy <- mutate(dta_tidy, residual_proportion=residual/expectation)
 
 save(dta_tidy, file="Data/RObj/Tidy_Data.RData")
 
+###############################################################################
+# thought I was being stupid.
+# 
+# Lines are so much better. Things start to look odd now after 2001 - 
+# especially for young women - first rapid move to the left and mortality 
+# rates for eth youngest appear to drop below log -8.
+# 
+# Men in 2002 do what women did in 2001.
+# 
+# Note how little change there is for 40 year olds. 
+# Stuck in the country they were in for the last ten years - 
+#   so apparent rapid improvement in mortality and no sudden apparent migration…
+# 
+# Is the data not complete for 2007, 2009 and 2010?
+# 
+# 1990 is a good year to start - even though the data look erratic until 1993. 
+# After the wall fell in 1989 there was quite rapid movement - 
+#   especially of young women from East Germany to the West, and probably from 
+# the other countries East of the iron curtain.
+# 
+# A final suggestion from me before I call it a weekend!
+#   
+#   Maybe draw a single overview graph, with lines again, and with the Y axis 
+# still being death rates - but the X axis  being year 1990-2008. An a separate 
+# line for each single year of age and sex.
+# 
+# In other words just one line for women aged 25 on the graph with the 
+# height of points being death rates and the X position be year. It should 
+# work with so many lines as they tend to be parallel. lines will bend quickly 
+# down towards 2008 as mortality rates of the youngest age groups drop quickly 
+# in recent years - quicker than makes much sense unless there is a problem 
+# with the data.
+# 
+# However I’ll just find you an email from BRAKE I got in the last two days 
+#which gives another possibility….
+# 
+# Danny
 

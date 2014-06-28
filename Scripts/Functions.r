@@ -837,3 +837,13 @@ Make_Excel_Workbook <- function(dir_location, files_list, wb_name){
   saveWorkbook(wb, file=paste0(wb_name, ".xlsx"))
   print("Done")
 }
+
+
+# Function for downloading large files from :
+#http://stackoverflow.com/questions/14426359/downloading-large-files-with-r-rcurl-efficiently
+bdown <- function(url, file){
+  f = CFILE(file, mode="wb")
+  a = curlPerform(url = url, writedata = f@ref, noprogress=FALSE)
+  close(f)
+  return(a)
+}
