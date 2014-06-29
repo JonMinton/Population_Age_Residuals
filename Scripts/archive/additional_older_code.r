@@ -314,3 +314,239 @@ saveWorkbook(wb, file="Rearranged_Data.xlsx")
 #           file="/Users/JonMinton/Google Drive/PROJECTS/Age Residuals/Country Codes.csv"
 # )
 
+
+#####################################################################################################
+#####################################################################################################
+
+# # log on y axis
+# 
+# ?coord_cartesian
+# 
+# g3 <- g2 + scale_y_log10()
+
+# Separate by gender?
+g <- ggplot(subset(residuals, year > 2000 & sex=="male" & age >=20 & age < 50) ) + aes(x=year, y= residual_prop, group=age, colour=age)
+g2 <- g + geom_line() + facet_wrap( ~ country, nrow=4)
+print(g2)
+ggsave("Figures/Lattice_Male.png")
+
+
+g <- ggplot(subset(dta_tidy, year > 2000 & sex=="female")) + aes(x=year, y= residual_proportion, group=age, colour=age)
+g2 <- g + geom_line() + facet_wrap( ~ country, nrow=4)
+print(g2)
+
+ggsave("Figures/Lattice_Female.png")
+
+# Log scale on y axis
+
+#### What I now want are the residuals as a percentage of the expectation
+
+
+
+
+
+########################################################################################################
+#########################################################################################
+load("Data/RObj/Expectations_and_Residuals.RData")
+
+country_codes <- read.csv("Data/HMD/country_codes__new.csv", stringsAsFactors=FALSE)
+
+europe_indicators <- country_codes$short[country_codes$europe==T]  
+
+names(Outlist$expectations$male) <- country_codes$short
+names(Outlist$expectations$female) <- country_codes$short
+names(Outlist$expectations$total) <- country_codes$short
+names(Outlist$residuals$male) <- country_codes$short
+names(Outlist$residuals$female) <- country_codes$short
+names(Outlist$residuals$total) <- country_codes$short
+
+
+eu_res_male <- Outlist$residuals$male[europe_indicators]
+eu_res_female <- Outlist$residuals$female[europe_indicators]
+eu_res_total <- Outlist$residuals$total[europe_indicators]
+
+# I want the following long format dataframe
+
+# identifiers
+#  country, gender, age, year
+# value: quantity
+
+fn <- function(x, label=NA, sex_=NA){
+  out <- melt(x, varnames=c("age", "year"), value.name=label)
+  out <- data.frame(out, sex=sex_)
+  return(out)            
+}
+
+
+dta_long_male <- ldply(
+  eu_res_male,
+  fn,
+  label="residual",
+  sex_="male"
+)
+
+dta_long_female <- ldply(
+  eu_res_female,
+  fn, 
+  label="residual",
+  sex_="female"
+)
+
+dta_long_total <- ldply(
+  eu_res_total,
+  fn,
+  label="residual",
+  sex_="total"
+)
+
+names(dta_long_male)[1] <- "country"
+names(dta_long_female)[1] <- "country"
+names(dta_long_total)[1] <- "country"
+
+
+dta_long <- rbind(dta_long_male, dta_long_female, dta_long_total)
+
+rm(dta_long_male, dta_long_female, dta_long_total)
+
+dta_long2 <- melt(dta_long, id.var=c("country", "age", "year", "sex"))
+dta_wide <- dcast(dta_long2, country + age + year ~ sex)
+
+
+
+dta_res_tidy <- dta_long2
+
+
+####################################################################################
+
+eu_exp_male <- Outlist$expectations$male[europe_indicators]
+eu_exp_female <- Outlist$expectations$female[europe_indicators]
+eu_exp_total <- Outlist$expectations$total[europe_indicators]
+
+dta_long_male <- ldply(
+  eu_exp_male,
+  fn,
+  label="expectation",
+  sex_="male"
+)
+
+dta_long_female <- ldply(
+  eu_exp_female,
+  fn, 
+  label="expectation",
+  sex_="female"
+)
+
+dta_long_total <- ldply(
+  eu_exp_total,
+  fn,
+  label="expectation",
+  sex_="total"
+)
+
+
+names(dta_long_male)[1] <- "country"
+names(dta_long_female)[1] <- "country"
+names(dta_long_total)[1] <- "country"
+
+dta_long <- rbind(dta_long_male, dta_long_female, dta_long_total)
+
+rm(dta_long_male, dta_long_female, dta_long_total)
+
+dta_long2 <- melt(dta_long, id.var=c("country", "age", "year", "sex"))
+
+dta_tidy_long <- rbind(dta_res_tidy, dta_long2)
+
+dta_tidy <- dcast(dta_tidy_long, country + age + year + sex ~ variable)
+# g <- ggplot(subset(dta_wide, year > 1995)) + aes(x=year, y=male, group=age)
+dta_tidy <- mutate(dta_tidy, residual_proportion=residual/expectation)
+
+save(dta_tidy, file="Data/RObj/Tidy_Data.RData")
+
+
+dta_res_tidy <- dta_long2
+
+
+####################################################################################
+
+eu_exp_male <- Outlist$expectations$male[europe_indicators]
+eu_exp_female <- Outlist$expectations$female[europe_indicators]
+eu_exp_total <- Outlist$expectations$total[europe_indicators]
+
+dta_long_male <- ldply(
+  eu_exp_male,
+  fn,
+  label="expectation",
+  sex_="male"
+)
+
+dta_long_female <- ldply(
+  eu_exp_female,
+  fn, 
+  label="expectation",
+  sex_="female"
+)
+
+dta_long_total <- ldply(
+  eu_exp_total,
+  fn,
+  label="expectation",
+  sex_="total"
+)
+
+
+names(dta_long_male)[1] <- "country"
+names(dta_long_female)[1] <- "country"
+names(dta_long_total)[1] <- "country"
+
+dta_long <- rbind(dta_long_male, dta_long_female, dta_long_total)
+
+rm(dta_long_male, dta_long_female, dta_long_total)
+
+dta_long2 <- melt(dta_long, id.var=c("country", "age", "year", "sex"))
+
+dta_tidy_long <- rbind(dta_res_tidy, dta_long2)
+
+dta_tidy <- dcast(dta_tidy_long, country + age + year + sex ~ variable)
+# g <- ggplot(subset(dta_wide, year > 1995)) + aes(x=year, y=male, group=age)
+dta_tidy <- mutate(dta_tidy, residual_proportion=residual/expectation)
+
+save(dta_tidy, file="Data/RObj/Tidy_Data.RData")
+
+###############################################################################
+# thought I was being stupid.
+# 
+# Lines are so much better. Things start to look odd now after 2001 - 
+# especially for young women - first rapid move to the left and mortality 
+# rates for eth youngest appear to drop below log -8.
+# 
+# Men in 2002 do what women did in 2001.
+# 
+# Note how little change there is for 40 year olds. 
+# Stuck in the country they were in for the last ten years - 
+#   so apparent rapid improvement in mortality and no sudden apparent migration…
+# 
+# Is the data not complete for 2007, 2009 and 2010?
+# 
+# 1990 is a good year to start - even though the data look erratic until 1993. 
+# After the wall fell in 1989 there was quite rapid movement - 
+#   especially of young women from East Germany to the West, and probably from 
+# the other countries East of the iron curtain.
+# 
+# A final suggestion from me before I call it a weekend!
+#   
+#   Maybe draw a single overview graph, with lines again, and with the Y axis 
+# still being death rates - but the X axis  being year 1990-2008. An a separate 
+# line for each single year of age and sex.
+# 
+# In other words just one line for women aged 25 on the graph with the 
+# height of points being death rates and the X position be year. It should 
+# work with so many lines as they tend to be parallel. lines will bend quickly 
+# down towards 2008 as mortality rates of the youngest age groups drop quickly 
+# in recent years - quicker than makes much sense unless there is a problem 
+# with the data.
+# 
+# However I’ll just find you an email from BRAKE I got in the last two days 
+#which gives another possibility….
+# 
+# Danny
+
