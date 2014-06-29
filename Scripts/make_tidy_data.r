@@ -25,8 +25,8 @@ rates_tidy <- mutate(rates_tidy, death_rate = death_count / population_count)
 rates_tidy$death_count <- NULL
 rates_tidy$population_count <- NULL
 
-write.csv(counts_tidy, file="Data/Tidy/counts.csv")
-write.csv(rates_tidy, file="Data/Tidy/rates.csv")
+write.csv(counts_tidy, file="Data/Tidy/counts.csv", row.names=F)
+write.csv(rates_tidy, file="Data/Tidy/rates.csv", row.names=F)
 
 
 # Ideally should be able to produce the expectations from the count file directly
@@ -63,4 +63,4 @@ expectations_tidy <- ddply(counts_tidy, .(country, sex), fn, .progress="text")
 expectations_tidy$death_count <- NULL
 expectations_tidy <- expectations_tidy[which(!is.na(expectations_tidy$population_expected)),]
 expectations_tidy <- rename(expectations_tidy, c("population_count"="population_actual"))
-write.csv(expectations_tidy, file="Data/Tidy/expectations.csv")
+write.csv(expectations_tidy, file="Data/Tidy/expectations.csv", row.names=F)

@@ -46,8 +46,32 @@ RequiredPackages(
 if(!exists("counts")) {counts <- read.csv("Data/Tidy/counts.csv")}
 if(!exists("rates")) {rates <- read.csv("Data/Tidy/rates.csv")}
 if(!exists("expectations")){expectations <- read.csv("Data/Tidy/expectations.csv")}
-if(!exists("country_codes")) {country_codes <- read.csv("Data/Raw/country_codes__new.csv")}
+if(!exists("country_codes")) {country_codes <- read.csv("Data/Raw/country_codes__new.csv", stringsAsFactors=F)}
 
+europe_codes <- country_codes$short[which(country_codes$europe==1)]
+
+counts_eu <- subset(
+  counts,
+  subset=country %in% europe_codes                  
+                    )
+rates_eu <- subset(
+  rates,
+  subset=country %in% europe_codes
+  )
+
+exp_eu <- subset(
+  expectations,
+  subset=country %in% europe_codes
+  )
+
+counts_eu_all <- ddply(
+  counts_eu,
+  .(year, age, sex),
+  summarise,
+  n_countries=length(death_count),
+  death_count=sum(death_count),
+  population_count=sum(population_count)
+  )
 
 residuals <- mutate(
   expectations, 
