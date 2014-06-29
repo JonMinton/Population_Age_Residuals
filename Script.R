@@ -2,16 +2,7 @@ rm(list=ls())
 
 # Suggested in: 
 #https://github.com/skardhamar/rga/issues/6
-options(RCurlOptions = list(verbose = FALSE, capath = system.file("CurlSSL", "cacert.pem", package = "RCurl"), ssl.verifypeer = FALSE))
-
-##########################################################################################################
-# Tasks
-
-
-
-# 1) Script for checking and loading tidy data
-# 2) script for creating tidy data if it cannot be loaded
-
+#options(RCurlOptions = list(verbose = FALSE, capath = system.file("CurlSSL", "cacert.pem", package = "RCurl"), ssl.verifypeer = FALSE))
 
 
 ###########################################################################################################
@@ -45,10 +36,42 @@ RequiredPackages(
 ############################################################################################################
 
 
-source("Scripts/functions.r")
+#source("Scripts/functions.r")
 
 # Have 'tidy' files been found?
-source("Scripts/manage_data.r")
+#source("Scripts/manage_data.r")
+
+# Tidy files to load:
+
+if(!exists("counts")) {counts <- read.csv("Data/Tidy/counts.csv")}
+if(!exists("rates")) {rates <- read.csv("Data/Tidy/rates.csv")}
+if(!exists("expectations")){expectations <- read.csv("Data/Tidy/expectations.csv")}
+if(!exists("country_codes")) {country_codes <- read.csv("Data/Raw/country_codes__new.csv")}
+
+
+residuals <- mutate(
+  expectations, 
+  population_residual =population_actual - population_expected, 
+  residual_prop=population_residual/population_actual
+  )
+
+residuals$population_actual <- NULL
+residuals$population_expected <- NULL
+residuals$population_residual <- NULL
+
+dta_joined <- join(residuals, rates, by=c("country", "year", "age", "sex"), type="inner")
+dta_joined <- merge(dta_joined, country_codes, by.x="country", by.y="short")
+dta_joined <- subset(dta_joined, subset=europe==1)
+dta_joined$europe <- NULL
+
+
+g <- ggplot(subset(
+  dta_joined,
+  subset= sex!="total" & age <=50 & age > 20 & year > 1990
+  )
+g2 <- g + aes(x=residual_prop, y=log(death_rate), colour=year)
+g3 <- g2 + geom_line() + facet_grid(country ~ sex)
+g3
 
 
 
