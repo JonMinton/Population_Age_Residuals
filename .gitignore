@@ -1,4 +1,8 @@
 .Rproj.user
 .Rhistory
 .RData
-Data/*
+Data/Excel/*
+Data/HMD/*
+Data/Raw/*
+Data/RObj/*
+Data/Zipped/*
