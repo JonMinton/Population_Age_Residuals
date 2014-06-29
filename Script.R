@@ -90,8 +90,18 @@ g4
 ggsave("Figures/deathrate_vs_res_facet_age.png")
 
 
+g <- ggplot(
+  subset(
+  mrate_resp,
+  subset= sex!="total" & age <= 50 & age >=20 & year >=1990
+  )
+)
 
+g2 <- g + aes(x=year, y=log(death_rate), group=age, colour=age)
+g3 <- g2 + geom_line() + facet_wrap(~ sex) 
+print(g3)
 
+ggsave("Figures/deathrates_agegroup.png")
 ########################################################################
 
 
