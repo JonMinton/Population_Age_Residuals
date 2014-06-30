@@ -113,8 +113,8 @@ mrate_resp$age_group <- recode(
 
 # cut ages into groups 
 
-mrate_resp_agegroup$age_group <- ordered(
-  mrate_resp_agegroup$age_group, 
+mrate_resp$age_group <- ordered(
+  mrate_resp$age_group, 
   levels=c(
     '4 or under',
     '5-9',
@@ -222,7 +222,17 @@ print(g3)
 ggsave("Figures/deathrates_resprop_agegroup_scatter.png")
 
 
+g <- ggplot(
+  subset(mrate_resp_agegroup,
+         subset= sex!="total" & year >=1990 &  year <= 2011 & age_group %in% agegroups_of_interest))
 
+g2 <- g + aes(y=residual_prop, x=log(death_rate), group = sex, colour=year)
+g3 <- g2 + geom_path(size=1.1) + facet_grid(age_group~.) + geom_hline(y=0, lty="dashed")
+g4 <- g3 + geom_point(colour = "black", shape= "|", size = 3)
+
+print(g4)
+
+ggsave("Figures/deathrates_residual_majaplot.png")
 ########################################################################
 
 
