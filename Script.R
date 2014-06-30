@@ -24,7 +24,8 @@ RequiredPackages(
     "httr",
     "digest",
     "ggplot2",
-    "stringr"
+    "stringr",
+    "car"
     )
   )
 
@@ -76,7 +77,44 @@ mrate_resp <- join(
   )
 
 
-mrate_resp <- arrange(mrate_resp, sex, year, age)
+mrate_resp <- arrange(mrate_resp, age, year, sex)
+
+
+mrate_resp$age_group <- recode(
+  mrate_resp$age,
+  recodes="
+    1:5='5 or under';
+    6:10 = '6-10';
+    11:15 = '11-15';
+    16:20 = '16-20';
+    21:25 = '21-25';
+    26:30 = '26-30';
+    31:35 = '31-35';
+    36:40 = '36-40';
+    41:45 = '41-45';
+    else = 'over 45'
+  ",
+  as.factor.result=T
+  )
+# cut ages into groups 
+
+mrate_resp_agegroup$age_group <- ordered(
+  mrate_resp_agegroup$age_group, 
+  levels=c(
+    "5 or under", 
+    "6-10", 
+    "11-15", 
+    "16-20", 
+    "21-25", 
+    "26-30", 
+    "31-35", 
+    "36-40", 
+    "41-45", 
+    "over 45"
+    )
+  )
+
+
 g <- ggplot(subset(
   mrate_resp,
   subset= sex!="total" & age <=50 & age > 20 & year > 1990
@@ -90,6 +128,7 @@ g4
 ggsave("Figures/deathrate_vs_res_facet_age.png")
 
 
+####
 g <- ggplot(
   subset(
   mrate_resp,
@@ -101,7 +140,40 @@ g2 <- g + aes(x=year, y=log(death_rate), group=age, colour=age)
 g3 <- g2 + geom_line() + facet_wrap(~ sex) 
 print(g3)
 
+ggsave("Figures/deathrates_age.png")
+
+
+mrate_resp_agegroup <- ddply(
+  mrate_resp, 
+  .(sex, year, age_group), 
+  summarise,
+  population_count=sum(population_count),
+  death_count=sum(death_count),
+  population_actual=sum(population_actual),
+  population_expected=sum(population_expected),
+  death_rate=death_count/population_count,
+  residual_count=population_actual - population_expected,
+  residual_prop=residual_count/population_actual
+                             )
+
+mrate_resp_agegroup <- arrange(mrate_resp_agegroup, age_group, sex, year)
+####
+agegroups_of_interest <- c("11-15", "16-20", "21-25", "26-30", "31035", "36-40")
+
+g <- ggplot(
+  subset(
+    mrate_resp_agegroup,
+    subset= sex!="total" & year >=1990 & age_group %in% agegroups_of_interest
+  )
+)
+
+g2 <- g + aes(x=year, y=log(death_rate), group=age_group, colour=age_group, lty=age_group)
+g3 <- g2 + geom_line(size=1.1) + facet_wrap(~ sex) 
+print(g3)
+
 ggsave("Figures/deathrates_agegroup.png")
+
+
 ########################################################################
 
 
