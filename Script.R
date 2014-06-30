@@ -131,6 +131,7 @@ mrate_resp_agegroup$age_group <- ordered(
 )
 
 
+
 g <- ggplot(subset(
   mrate_resp,
   subset= sex!="total" & age <=50 & age > 20 & year > 1990
@@ -174,6 +175,7 @@ mrate_resp_agegroup <- ddply(
 
 mrate_resp_agegroup <- arrange(mrate_resp_agegroup, age_group, sex, year)
 ####
+
 agegroups_of_interest <- c(
   '20-24',
   '25-29',
@@ -182,6 +184,7 @@ agegroups_of_interest <- c(
   '40-44',
   '45-49'
 )
+
 
 
 g <- ggplot(
@@ -196,6 +199,7 @@ g3 <- g2 + geom_line(size=1.1) + facet_wrap(~ sex)
 print(g3)
 
 ggsave("Figures/deathrates_agegroup.png")
+
 
 
 #############################################################################
@@ -216,6 +220,7 @@ ggsave("Figures/deathrates_resprop_agegroup.png")
 g3 <- g2 + geom_point() + facet_grid(age_group~ sex) + geom_vline(x=0, lty="dashed") 
 print(g3)
 ggsave("Figures/deathrates_resprop_agegroup_scatter.png")
+
 
 
 ########################################################################
