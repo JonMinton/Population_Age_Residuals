@@ -49,11 +49,20 @@ if(!exists("rates")) {rates <- read.csv("Data/Tidy/rates.csv")}
 if(!exists("expectations")){expectations <- read.csv("Data/Tidy/expectations.csv")}
 if(!exists("country_codes")) {country_codes <- read.csv("Data/Raw/country_codes__new.csv", stringsAsFactors=F)}
 if(!exists("counts_eu")){counts_eu <- read.csv("Data/Tidy/counts_eu.csv")}
+
 if(!exists("rates_eu")){rates_eu <- read.csv("Data/Tidy/rates_eu.csv")}
 if(!exists("exp_eu")){exp_eu <- read.csv("Data/Tidy/exp_eu.csv")}
 if(!exists("counts_eu_all")){counts_eu_all <- read.csv("Data/Tidy/counts_eu_all.csv")}
 if(!exists("rates_eu_all")){rates_eu_all <- read.csv("Data/Tidy/rates_eu_all.csv")}
 if(!exists("exp_eu_all")){exp_eu_all <- read.csv("Data/Tidy/exp_eu_all.csv")}
+
+# 14 countries reporting in 2011 only
+if(!exists("counts_14")){counts_14 <- read.csv("Data/Tidy/counts_14.csv")}
+if(!exists("rates_14")){rates_14 <- read.csv("Data/Tidy/rates_14.csv")}
+if(!exists("exp_14")){exp_14 <- read.csv("Data/Tidy/exp_14.csv")}
+if(!exists("counts_14_all")){counts_14_all <- read.csv("Data/Tidy/counts_14_all.csv")}
+if(!exists("rates_14_all")){rates_14_all <- read.csv("Data/Tidy/rates_14_all.csv")}
+if(!exists("exp_14_all")){exp_14_all <- read.csv("Data/Tidy/exp_14_all.csv")}
 
 
 #   Maybe draw a single overview graph, with lines again, and with the Y axis 
@@ -296,6 +305,7 @@ ggsave("Figures/Tile_Countries_Combined_from1950.png")
 ####################
 
 
+
 # As above, but only the 14 countries included in 2011
 # join exp_eu_all and rates_eu_all
 
@@ -431,6 +441,21 @@ print(g3)
 ggsave("Figures/deathrates_agegroup_2011countriesonly.png")
 
 
+# As above, but with a longer time series
+
+g <- ggplot(
+  subset(
+    mrate_resp_agegroup,
+    subset= sex!="total" & year >=1970 & age_group %in% agegroups_of_interest
+  )
+)
+
+g2 <- g + aes(x=year, y=log(death_rate), group=age_group, colour=age_group, lty=age_group)
+g3 <- g2 + geom_line(size=1.1) + facet_wrap(~ sex) 
+print(g3)
+
+ggsave("Figures/deathrates_agegroup_2011countriesonly_from1970.png")
+
 
 #############################################################################
 
@@ -452,6 +477,7 @@ print(g3)
 ggsave("Figures/deathrates_resprop_agegroup_scatter.png")
 
 
+
 g <- ggplot(
   subset(mrate_resp_agegroup,
          subset= sex!="total" & year >=1990 &  year <= 2011 & age_group %in% agegroups_of_interest))
@@ -464,3 +490,18 @@ print(g4)
 
 ggsave("Figures/deathrates_residual_majaplot_2011countriesonly.png")
 ########################################################################
+
+
+# As above, but with a longer time series
+
+g <- ggplot(
+  subset(mrate_resp_agegroup,
+         subset= sex!="total" & year >=1970 &  year <= 2011 & age_group %in% agegroups_of_interest))
+
+g2 <- g + aes(y=residual_prop, x=log(death_rate), group = sex, colour=year)
+g3 <- g2 + geom_path(size=1.1) + facet_grid(age_group~.) + geom_hline(y=0, lty="dashed")
+g4 <- g3 + geom_point(colour = "black", shape= "|", size = 3)
+
+print(g4)
+
+ggsave("Figures/deathrates_residual_majaplot_2011countriesonly_from1970.png")
