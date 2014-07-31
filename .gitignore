@@ -6,3 +6,4 @@ Data/HMD/*
 Data/Raw/*
 Data/RObj/*
 Data/Zipped/*
+knitr/results_document_cache/*
