@@ -9,6 +9,15 @@
 # in recent years - quicker than makes much sense unless there is a problem 
 # with the data.
 
+####################################################################################################
+####################################################################################################
+
+# DERIVED DATA MANAGEMENT
+
+# The code below will create the following datasets
+
+# mrate_resp : mortality rate and residual proportion for the eu as a whole
+
 # join exp_eu_all and rates_eu_all
 
 mrate_resp <- join(
@@ -17,7 +26,6 @@ mrate_resp <- join(
   by=c("year", "age", "sex"),
   type="inner"
 )
-
 
 mrate_resp <- arrange(mrate_resp, age, year, sex)
 
@@ -73,35 +81,7 @@ mrate_resp$age_group <- ordered(
 )
 
 
-
-g <- ggplot(subset(
-  mrate_resp,
-  subset= sex!="total" & age <=50 & age > 20 & year > 1990
-))
-
-g2 <- g + aes(x=residual_prop, y=log(death_rate), group=sex)
-g3 <- g2 + geom_line(aes(colour=year)) + facet_wrap( ~ age) + geom_point(aes(pch=sex), alpha=0.2)
-g4 <- g3 + scale_colour_gradient(low="blue", high="red")
-g4
-
-ggsave("Figures/deathrate_vs_res_facet_age.png")
-
-
-####
-g <- ggplot(
-  subset(
-    mrate_resp,
-    subset= sex!="total" & age <= 50 & age >=20 & year >=1990
-  )
-)
-
-g2 <- g + aes(x=year, y=log(death_rate), group=age, colour=age)
-g3 <- g2 + geom_line() + facet_wrap(~ sex) 
-print(g3)
-
-ggsave("Figures/deathrates_age.png")
-
-
+#############################################################################################
 mrate_resp_agegroup <- ddply(
   mrate_resp, 
   .(sex, year, age_group), 
@@ -128,6 +108,147 @@ agegroups_of_interest <- c(
 )
 
 
+###################################################################################################
+
+## as above but only the 14 countries in 2011
+europe_codes <- country_codes$short[which(country_codes$europe==1)]
+
+tmp <- dcast(counts, year + country ~ . , length) 
+tmp <- subset(tmp, subset=year==2011)
+tmp[,3] <- NULL
+eu_2011_countries <- as.character(tmp$country[which(tmp$country %in%  europe_codes)])
+
+#############################################################################################
+#############################################################################################
+
+png(
+  "figures/contour_alleurope_identity.png",  
+  height=1000, width=2000
+  )
+contourplot(
+  death_rate ~ year * age | sex, 
+  data=subset(rates_eu_all, subset=sex!="total" & age <=80), 
+  region=T, 
+  col.regions=rev(heat.colors(200)), 
+  cuts=50, 
+  main="mortality rates, identity scale; all available data ")
+dev.off()
+
+#####################
+png(
+  "figures/contour_alleurope_log.png",  
+  height=1000, width=2000
+)
+contourplot(
+  log(death_rate) ~ year * age | sex, 
+  data=subset(rates_eu_all, subset=sex!="total" & age <=80), 
+  region=T, 
+  col.regions=rev(heat.colors(200)), 
+  cuts=50, 
+  main="mortality rates, log scale; all available data ")
+dev.off()
+
+##################
+png(
+  "figures/contour_14europe_identity.png",  
+  height=1000, width=2000
+)
+contourplot(
+  death_rate ~ year * age | sex, 
+  data=subset(rates_14_all, subset=sex!="total" & age <=80), 
+  region=T, 
+  col.regions=rev(heat.colors(200)), 
+  cuts=50, 
+  main="mortality rates, identity scale; European subset ")
+dev.off()
+
+#####################
+png(
+  "figures/contour_14europe_log.png",  
+  height=1000, width=2000
+)
+contourplot(
+  log(death_rate) ~ year * age | sex, 
+  data=subset(rates_14_all, subset=sex!="total" & age <=80), 
+  region=T, 
+  col.regions=rev(heat.colors(200)), 
+  cuts=50, 
+  main="mortality rates, log scale; European subset ")
+dev.off()
+
+##################################
+
+
+## Now looking at the ages 20 to 50, from 1970 onwards
+##################
+png(
+  "figures/contour_later14europe_identity.png",  
+  height=1000, width=2000
+)
+contourplot(
+  death_rate ~ year * age | sex, 
+  data=subset(rates_14_all, subset=sex!="total" & age >= 20 & age <=50 & year >=1970), 
+  region=T, 
+  col.regions=rev(heat.colors(200)), 
+  cuts=50, 
+  main="mortality rates, identity scale; European subset ")
+dev.off()
+
+#####################
+png(
+  "figures/contour_later14europe_log.png",  
+  height=1000, width=2000
+)
+contourplot(
+  log(death_rate) ~ year * age | sex, 
+  data=subset(rates_14_all, subset=sex!="total" & age >= 20 & age <=50 & year >=1970), 
+  region=T, 
+  col.regions=rev(heat.colors(200)), 
+  cuts=50, 
+  main="mortality rates, log scale; European subset ")
+dev.off()
+
+
+
+
+
+# FIGURES USING THE DERIVED DATA 
+
+#
+
+
+#####################
+g <- ggplot(subset(
+  mrate_resp,
+  subset= sex!="total" & age <=50 & age > 20 & year > 1990
+))
+
+g2 <- g + aes(x=residual_prop, y=log(death_rate), group=sex)
+g3 <- g2 + geom_line(aes(colour=year)) + facet_wrap( ~ age) + geom_point(aes(pch=sex), alpha=0.2)
+g4 <- g3 + scale_colour_gradient(low="blue", high="red")
+g4
+
+ggsave("Figures/deathrate_vs_res_facet_age.png")
+
+
+############################################################################
+
+g <- ggplot(
+  subset(
+    mrate_resp,
+    subset= sex!="total" & age <= 50 & age >=20 & year >=1990
+  )
+)
+
+g2 <- g + aes(x=year, y=log(death_rate), group=age, colour=age)
+g3 <- g2 + geom_line() + facet_wrap(~ sex) 
+print(g3)
+
+ggsave("Figures/deathrates_age.png")
+
+
+
+###########################################################################
 
 g <- ggplot(
   subset(
@@ -151,25 +272,7 @@ ggsave("Figures/deathrates_agegroup.png")
 
 
 
-# #############################################################################
-# 
-# g <- ggplot(
-#   subset(
-#     mrate_resp_agegroup,
-#     subset= sex!="total" & year >=1990 & age_group %in% agegroups_of_interest
-#   )
-# )
-# 
-# g2 <- g + aes(x=residual_prop, y=log(death_rate), group=age_group, colour=year)
-# g3 <- g2 + geom_line(size=1.1) + facet_grid(age_group~ sex) + geom_vline(x=0, lty="dashed") 
-# print(g3)
-# 
-# ggsave("Figures/deathrates_resprop_agegroup.png")
-# 
-# g3 <- g2 + geom_point() + facet_grid(age_group~ sex) + geom_vline(x=0, lty="dashed") 
-# print(g3)
-# ggsave("Figures/deathrates_resprop_agegroup_scatter.png")
-# 
+###################################################################################
 
 g <- ggplot(
   subset(mrate_resp_agegroup,
@@ -201,13 +304,136 @@ ggsave("Figures/lines_residual_deathrates.png")
 ###############################################################################################
 ###############################################################################################
 
-## as above but only the 14 countries in 2011
-europe_codes <- country_codes$short[which(country_codes$europe==1)]
 
-tmp <- dcast(counts, year + country ~ . , length) 
-tmp <- subset(tmp, subset=year==2011)
-tmp[,3] <- NULL
-eu_2011_countries <- as.character(tmp$country[which(tmp$country %in%  europe_codes)])
+#############################################################################
+
+g <- ggplot(
+  subset(
+    mrate_resp,
+    subset= sex!="total" & age <= 50 & age >=20 & year >=1990
+  )
+)
+
+g2 <- g + aes(x=year, y=death_rate, group=age, colour=age)
+g3 <- g2 + geom_line() + facet_wrap(~ sex) 
+g4 <- g3 + scale_y_log10(
+  limits=c(0.0002, 0.010), 
+  breaks=c(0.0002, 0.0005, 0.001, 0.002, 0.004, 0.01), 
+  labels=c("0.0002", "0.0005", "0.001", "0.002", "0.004", "0.01"))
+g5 <- g4 + labs(y="death rate", x="residual proportion")
+print(g5)
+
+ggsave("Figures/deathrates_age.png")
+
+#############################################################################
+
+
+
+g <- ggplot(
+  subset(
+    mrate_resp_agegroup,
+    subset= sex!="total" & year >=1990 & age_group %in% agegroups_of_interest
+  )
+)
+
+g2 <- g + aes(x=year, y=death_rate, group=age_group, colour=age_group, lty=age_group)
+g3 <- g2 + geom_line(size=1.1) + facet_wrap(~ sex) 
+g4 <- g3 + scale_y_log10(
+  limits=c(0.0002, 0.01), 
+  breaks=c(0.0002, 0.0005, 0.001, 0.002, 0.004, 0.01), 
+  labels=c("0.0002", "0.0005", "0.001", "0.002", "0.004", "0.01"))
+g5 <- g4 + labs(y="death rate", x="residual proportion")
+print(g5)
+
+
+
+ggsave("Figures/deathrates_agegroup_2011countriesonly.png")
+
+############################################################################
+# As above, but with a longer time series
+
+g <- ggplot(
+  subset(
+    mrate_resp_agegroup,
+    subset= sex!="total" & year >=1970 & age_group %in% agegroups_of_interest
+  )
+)
+
+g2 <- g + aes(x=year, y=log(death_rate), group=age_group, colour=age_group, lty=age_group)
+g3 <- g2 + geom_line(size=1.1) + facet_wrap(~ sex) 
+print(g3)
+
+ggsave("Figures/deathrates_agegroup_2011countriesonly_from1970.png")
+
+
+#############################################################################
+
+g <- ggplot(
+  subset(
+    mrate_resp_agegroup,
+    subset= sex!="total" & year >=1990 & age_group %in% agegroups_of_interest
+  )
+)
+
+g2 <- g + aes(x=residual_prop, y=log(death_rate), group=age_group, colour=year)
+g3 <- g2 + geom_line(size=1.1) + facet_grid(age_group~ sex) + geom_vline(x=0, lty="dashed") 
+print(g3)
+
+ggsave("Figures/deathrates_resprop_agegroup.png")
+
+g3 <- g2 + geom_point() + facet_grid(age_group~ sex) + geom_vline(x=0, lty="dashed") 
+print(g3)
+ggsave("Figures/deathrates_resprop_agegroup_scatter.png")
+
+##########################################################################
+
+g <- ggplot(
+  subset(mrate_resp_agegroup,
+         subset= sex!="total" & year >=1990 &  year <= 2011 & age_group %in% agegroups_of_interest))
+
+g2 <- g + aes(y=residual_prop, x=log(death_rate), group = sex, colour=year)
+g3 <- g2 + geom_path(size=1.1) + facet_grid(age_group~.) + geom_hline(y=0, lty="dashed")
+g4 <- g3 + geom_point(colour = "black", shape= "|", size = 3)
+
+print(g4)
+
+ggsave("Figures/deathrates_residual_majaplot_2011countriesonly.png")
+########################################################################
+
+
+# As above, but with a longer time series
+
+g <- ggplot(
+  subset(mrate_resp_agegroup,
+         subset= sex!="total" & year >=1970 &  year <= 2011 & age_group %in% agegroups_of_interest))
+
+g2 <- g + aes(y=residual_prop, x=log(death_rate), group = sex, colour=year)
+g3 <- g2 + geom_path(size=1.1) + facet_grid(age_group~.) + geom_hline(y=0, lty="dashed")
+g4 <- g3 + geom_point(colour = "black", shape= "|", size = 3)
+
+print(g4)
+
+ggsave("Figures/deathrates_residual_majaplot_2011countriesonly_from1970.png")
+
+
+########################################################################
+
+# 
+# g <- ggplot(subset(
+#   mrate_resp,
+#   subset= sex!="total" & age <=50 & age > 20 & year > 1990
+# ))
+# 
+# g2 <- g + aes(x=residual_prop, y=log(death_rate), group=sex)
+# g3 <- g2 + geom_line(aes(colour=year)) + facet_wrap( ~ age) + geom_point(aes(pch=sex), alpha=0.2)
+# g4 <- g3 + scale_colour_gradient(low="blue", high="red")
+# g4
+# 
+# ggsave("Figures/deathrate_vs_res_facet_age.png")
+# 
+
+
+
 
 
 ####################################################################################
@@ -252,212 +478,25 @@ eu_2011_countries <- as.character(tmp$country[which(tmp$country %in%  europe_cod
 # As above, but only the 14 countries included in 2011
 # join exp_eu_all and rates_eu_all
 
-mrate_resp <- join(
-  rates_14_all,
-  exp_14_all, 
-  by=c("year", "age", "sex"),
-  type="inner"
-)
 
 
-mrate_resp <- arrange(mrate_resp, age, year, sex)
 
-
-mrate_resp$age_group <- recode(
-  mrate_resp$age,
-  recodes="
-  1:4='4 or under';
-  5:9 = '5-9';
-  10:14 = '10-14';
-  15:19 = '15-19';
-  20:24 = '20-24';
-  25:29 = '25-29';
-  30:34 = '30-34';
-  35:39 = '35-39';
-  40:44 = '40-44';
-  45:49 = '45-49';
-  else = '50 or older'
-  ",
-  as.factor.result=T,
-  levels=c(
-    '4 or under',
-    '5-9',
-    '10-14',
-    '15-19',
-    '20-24',
-    '25-29',
-    '30-34',
-    '35-39',
-    '40-44',
-    '45-49',
-    '50 or older'
-  )  
-)
-
-# cut ages into groups 
-
-mrate_resp$age_group <- ordered(
-  mrate_resp$age_group, 
-  levels=c(
-    '4 or under',
-    '5-9',
-    '10-14',
-    '15-19',
-    '20-24',
-    '25-29',
-    '30-34',
-    '35-39',
-    '40-44',
-    '45-49',
-    '50 or older'
-  )
-)
-
-
+# #############################################################################
 # 
-# g <- ggplot(subset(
-#   mrate_resp,
-#   subset= sex!="total" & age <=50 & age > 20 & year > 1990
-# ))
+# g <- ggplot(
+#   subset(
+#     mrate_resp_agegroup,
+#     subset= sex!="total" & year >=1990 & age_group %in% agegroups_of_interest
+#   )
+# )
 # 
-# g2 <- g + aes(x=residual_prop, y=log(death_rate), group=sex)
-# g3 <- g2 + geom_line(aes(colour=year)) + facet_wrap( ~ age) + geom_point(aes(pch=sex), alpha=0.2)
-# g4 <- g3 + scale_colour_gradient(low="blue", high="red")
-# g4
+# g2 <- g + aes(x=residual_prop, y=log(death_rate), group=age_group, colour=year)
+# g3 <- g2 + geom_line(size=1.1) + facet_grid(age_group~ sex) + geom_vline(x=0, lty="dashed") 
+# print(g3)
 # 
-# ggsave("Figures/deathrate_vs_res_facet_age.png")
+# ggsave("Figures/deathrates_resprop_agegroup.png")
 # 
-
-####
-g <- ggplot(
-  subset(
-    mrate_resp,
-    subset= sex!="total" & age <= 50 & age >=20 & year >=1990
-  )
-)
-
-g2 <- g + aes(x=year, y=death_rate, group=age, colour=age)
-g3 <- g2 + geom_line() + facet_wrap(~ sex) 
-g4 <- g3 + scale_y_log10(
-  limits=c(0.0002, 0.010), 
-  breaks=c(0.0002, 0.0005, 0.001, 0.002, 0.004, 0.01), 
-  labels=c("0.0002", "0.0005", "0.001", "0.002", "0.004", "0.01"))
-g5 <- g4 + labs(y="death rate", x="residual proportion")
-print(g5)
-
-ggsave("Figures/deathrates_age.png")
-
-####
-
-mrate_resp_agegroup <- ddply(
-  mrate_resp, 
-  .(sex, year, age_group), 
-  summarise,
-  population_count=sum(population_count),
-  death_count=sum(death_count),
-  population_actual=sum(population_actual),
-  population_expected=sum(population_expected),
-  death_rate=death_count/population_count,
-  residual_count=population_actual - population_expected,
-  residual_prop=residual_count/population_actual
-)
-
-mrate_resp_agegroup <- arrange(mrate_resp_agegroup, age_group, sex, year)
-####
-
-agegroups_of_interest <- c(
-  '20-24',
-  '25-29',
-  '30-34',
-  '35-39',
-  '40-44',
-  '45-49'
-)
-
-
-
-g <- ggplot(
-  subset(
-    mrate_resp_agegroup,
-    subset= sex!="total" & year >=1990 & age_group %in% agegroups_of_interest
-  )
-)
-
-g2 <- g + aes(x=year, y=death_rate, group=age_group, colour=age_group, lty=age_group)
-g3 <- g2 + geom_line(size=1.1) + facet_wrap(~ sex) 
-g4 <- g3 + scale_y_log10(
-  limits=c(0.0002, 0.01), 
-  breaks=c(0.0002, 0.0005, 0.001, 0.002, 0.004, 0.01), 
-  labels=c("0.0002", "0.0005", "0.001", "0.002", "0.004", "0.01"))
-g5 <- g4 + labs(y="death rate", x="residual proportion")
-print(g5)
-
-
-
-ggsave("Figures/deathrates_agegroup_2011countriesonly.png")
-
-
-# As above, but with a longer time series
-
-g <- ggplot(
-  subset(
-    mrate_resp_agegroup,
-    subset= sex!="total" & year >=1970 & age_group %in% agegroups_of_interest
-  )
-)
-
-g2 <- g + aes(x=year, y=log(death_rate), group=age_group, colour=age_group, lty=age_group)
-g3 <- g2 + geom_line(size=1.1) + facet_wrap(~ sex) 
-print(g3)
-
-ggsave("Figures/deathrates_agegroup_2011countriesonly_from1970.png")
-
-
-#############################################################################
-
-g <- ggplot(
-  subset(
-    mrate_resp_agegroup,
-    subset= sex!="total" & year >=1990 & age_group %in% agegroups_of_interest
-  )
-)
-
-g2 <- g + aes(x=residual_prop, y=log(death_rate), group=age_group, colour=year)
-g3 <- g2 + geom_line(size=1.1) + facet_grid(age_group~ sex) + geom_vline(x=0, lty="dashed") 
-print(g3)
-
-ggsave("Figures/deathrates_resprop_agegroup.png")
-
-g3 <- g2 + geom_point() + facet_grid(age_group~ sex) + geom_vline(x=0, lty="dashed") 
-print(g3)
-ggsave("Figures/deathrates_resprop_agegroup_scatter.png")
-
-
-
-g <- ggplot(
-  subset(mrate_resp_agegroup,
-         subset= sex!="total" & year >=1990 &  year <= 2011 & age_group %in% agegroups_of_interest))
-
-g2 <- g + aes(y=residual_prop, x=log(death_rate), group = sex, colour=year)
-g3 <- g2 + geom_path(size=1.1) + facet_grid(age_group~.) + geom_hline(y=0, lty="dashed")
-g4 <- g3 + geom_point(colour = "black", shape= "|", size = 3)
-
-print(g4)
-
-ggsave("Figures/deathrates_residual_majaplot_2011countriesonly.png")
-########################################################################
-
-
-# As above, but with a longer time series
-
-g <- ggplot(
-  subset(mrate_resp_agegroup,
-         subset= sex!="total" & year >=1970 &  year <= 2011 & age_group %in% agegroups_of_interest))
-
-g2 <- g + aes(y=residual_prop, x=log(death_rate), group = sex, colour=year)
-g3 <- g2 + geom_path(size=1.1) + facet_grid(age_group~.) + geom_hline(y=0, lty="dashed")
-g4 <- g3 + geom_point(colour = "black", shape= "|", size = 3)
-
-print(g4)
-
-ggsave("Figures/deathrates_residual_majaplot_2011countriesonly_from1970.png")
+# g3 <- g2 + geom_point() + facet_grid(age_group~ sex) + geom_vline(x=0, lty="dashed") 
+# print(g3)
+# ggsave("Figures/deathrates_resprop_agegroup_scatter.png")
+# 
