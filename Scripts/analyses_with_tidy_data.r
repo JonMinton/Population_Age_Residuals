@@ -211,40 +211,40 @@ eu_2011_countries <- as.character(tmp$country[which(tmp$country %in%  europe_cod
 
 
 ####################################################################################
+# 
+# 
+# 
+# g <- ggplot(subset(mrate_resp, year >= 1990 & age < 50 & sex!="total")) + aes(x=year, y= age, z=residual_prop)
+# g2 <- g + geom_tile(aes(fill=residual_prop)) + facet_wrap( ~ sex)
+# g3 <- g2 + scale_fill_gradientn(
+#   colours=c("red", "white", "blue"), 
+#   limits=c(-0.015, 0.015)
+# )
+# print(g3)
+# 
+# ggsave("Figures/Tile_Countries_Combined.png")
 
 
-
-g <- ggplot(subset(mrate_resp, year >= 1990 & age < 50 & sex!="total")) + aes(x=year, y= age, z=residual_prop)
-g2 <- g + geom_tile(aes(fill=residual_prop)) + facet_wrap( ~ sex)
-g3 <- g2 + scale_fill_gradientn(
-  colours=c("red", "white", "blue"), 
-  limits=c(-0.015, 0.015)
-)
-print(g3)
-
-ggsave("Figures/Tile_Countries_Combined.png")
-
-
-g <- ggplot(subset(mrate_resp, year >= 1970 & age < 50 & sex!="total")) + aes(x=year, y= age, z=residual_prop)
-g2 <- g + geom_tile(aes(fill=residual_prop)) + facet_wrap( ~ sex)
-g3 <- g2 + scale_fill_gradientn(
-  colours=c("red", "white", "blue"),
-  limits=c(-0.015, 0.015)
-)
-print(g3)
-
-ggsave("Figures/Tile_Countries_Combined_from1970.png")
+# g <- ggplot(subset(mrate_resp, year >= 1970 & age < 50 & sex!="total")) + aes(x=year, y= age, z=residual_prop)
+# g2 <- g + geom_tile(aes(fill=residual_prop)) + facet_wrap( ~ sex)
+# g3 <- g2 + scale_fill_gradientn(
+#   colours=c("red", "white", "blue"),
+#   limits=c(-0.015, 0.015)
+# )
+# print(g3)
+# 
+# ggsave("Figures/Tile_Countries_Combined_from1970.png")
 
 
-g <- ggplot(subset(mrate_resp, year >= 1950 & age < 50 & sex!="total")) + aes(x=year, y= age, z=residual_prop)
-g2 <- g + geom_tile(aes(fill=residual_prop)) + facet_wrap( ~ sex)
-g3 <- g2 + scale_fill_gradientn(
-  colours=c("red", "white", "blue"),
-  limits=c(-0.015, 0.015)
-)
-print(g3)
-
-ggsave("Figures/Tile_Countries_Combined_from1950.png")
+# g <- ggplot(subset(mrate_resp, year >= 1950 & age < 50 & sex!="total")) + aes(x=year, y= age, z=residual_prop)
+# g2 <- g + geom_tile(aes(fill=residual_prop)) + facet_wrap( ~ sex)
+# g3 <- g2 + scale_fill_gradientn(
+#   colours=c("red", "white", "blue"),
+#   limits=c(-0.015, 0.015)
+# )
+# print(g3)
+# 
+# ggsave("Figures/Tile_Countries_Combined_from1950.png")
 ####################
 
 
@@ -314,19 +314,19 @@ mrate_resp$age_group <- ordered(
 )
 
 
-
-g <- ggplot(subset(
-  mrate_resp,
-  subset= sex!="total" & age <=50 & age > 20 & year > 1990
-))
-
-g2 <- g + aes(x=residual_prop, y=log(death_rate), group=sex)
-g3 <- g2 + geom_line(aes(colour=year)) + facet_wrap( ~ age) + geom_point(aes(pch=sex), alpha=0.2)
-g4 <- g3 + scale_colour_gradient(low="blue", high="red")
-g4
-
-ggsave("Figures/deathrate_vs_res_facet_age.png")
-
+# 
+# g <- ggplot(subset(
+#   mrate_resp,
+#   subset= sex!="total" & age <=50 & age > 20 & year > 1990
+# ))
+# 
+# g2 <- g + aes(x=residual_prop, y=log(death_rate), group=sex)
+# g3 <- g2 + geom_line(aes(colour=year)) + facet_wrap( ~ age) + geom_point(aes(pch=sex), alpha=0.2)
+# g4 <- g3 + scale_colour_gradient(low="blue", high="red")
+# g4
+# 
+# ggsave("Figures/deathrate_vs_res_facet_age.png")
+# 
 
 ####
 g <- ggplot(
@@ -336,12 +336,18 @@ g <- ggplot(
   )
 )
 
-g2 <- g + aes(x=year, y=log(death_rate), group=age, colour=age)
+g2 <- g + aes(x=year, y=death_rate, group=age, colour=age)
 g3 <- g2 + geom_line() + facet_wrap(~ sex) 
-print(g3)
+g4 <- g3 + scale_y_log10(
+  limits=c(0.0002, 0.010), 
+  breaks=c(0.0002, 0.0005, 0.001, 0.002, 0.004, 0.01), 
+  labels=c("0.0002", "0.0005", "0.001", "0.002", "0.004", "0.01"))
+g5 <- g4 + labs(y="death rate", x="residual proportion")
+print(g5)
 
 ggsave("Figures/deathrates_age.png")
 
+####
 
 mrate_resp_agegroup <- ddply(
   mrate_resp, 
@@ -377,9 +383,16 @@ g <- ggplot(
   )
 )
 
-g2 <- g + aes(x=year, y=log(death_rate), group=age_group, colour=age_group, lty=age_group)
+g2 <- g + aes(x=year, y=death_rate, group=age_group, colour=age_group, lty=age_group)
 g3 <- g2 + geom_line(size=1.1) + facet_wrap(~ sex) 
-print(g3)
+g4 <- g3 + scale_y_log10(
+  limits=c(0.0002, 0.01), 
+  breaks=c(0.0002, 0.0005, 0.001, 0.002, 0.004, 0.01), 
+  labels=c("0.0002", "0.0005", "0.001", "0.002", "0.004", "0.01"))
+g5 <- g4 + labs(y="death rate", x="residual proportion")
+print(g5)
+
+
 
 ggsave("Figures/deathrates_agegroup_2011countriesonly.png")
 
