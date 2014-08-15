@@ -35,6 +35,9 @@ rates_eu_all <- mutate(counts_eu_all, death_rate=death_count/population_count)
 
 write.csv(rates_eu_all, file="Data/Tidy/rates_eu_all.csv", row.names=F)
 
+### This has been changed so that residual prop is now (actual - expected)/expected
+# not (actual - expected)/actual
+
 exp_eu_all <- ddply(
   exp_eu,
   .(sex, year, age),
@@ -42,7 +45,7 @@ exp_eu_all <- ddply(
   population_actual=sum(population_actual),
   population_expected=sum(population_expected),
   residual_count=population_actual - population_expected,
-  residual_prop=residual_count/population_actual
+  residual_prop=residual_count/population_expected
 )
 
 write.csv(exp_eu_all, file="Data/Tidy/exp_eu_all.csv", row.names=F)
@@ -52,8 +55,8 @@ write.csv(exp_eu_all, file="Data/Tidy/exp_eu_all.csv", row.names=F)
 
 residuals <- mutate(
   expectations, 
-  population_residual =population_actual - population_expected, 
-  residual_prop=population_residual/population_actual
+  residual_count =population_actual - population_expected, 
+  residual_prop=residual_count/population_expected
 )
 
 residuals$population_actual <- NULL
@@ -110,6 +113,8 @@ rates_14_all <- mutate(counts_14_all, death_rate=death_count/population_count)
 
 write.csv(rates_14_all, file="Data/Tidy/rates_14_all.csv", row.names=F)
 
+# This was changed to (actual-expected)/expected not (actual-expected)/actual
+
 exp_14_all <- ddply(
   exp_14,
   .(sex, year, age),
@@ -117,18 +122,16 @@ exp_14_all <- ddply(
   population_actual=sum(population_actual),
   population_expected=sum(population_expected),
   residual_count=population_actual - population_expected,
-  residual_prop=residual_count/population_actual
+  residual_prop=residual_count/population_expected
 )
 
 write.csv(exp_eu_all, file="Data/Tidy/exp_14_all.csv", row.names=F)
 
 
-
-
 residuals <- mutate(
   expectations, 
   population_residual =population_actual - population_expected, 
-  residual_prop=population_residual/population_actual
+  residual_prop=population_residual/population_expected
 )
 
 residuals$population_actual <- NULL

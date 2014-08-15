@@ -211,10 +211,34 @@ dev.off()
 
 
 
+###########################################################################
+# RESIDUALS ONLY 
+## Now looking at the ages 20 to 50, from 1970 onwards
+##################
+png(
+  "figures/contourresiduals_later14europe_identity.png",  
+  height=1000, width=2000
+)
+dta_ss <- subset(exp_14_all, subset=sex!="total" & age >= 20 &age <= 50 & year >= 1970)
+# want to know the maximum deviation from 0
+dta_ss$residual_prop <- dta_ss$residual_prop * 1000
 
-# FIGURES USING THE DERIVED DATA 
 
-#
+mx <- max(abs(dta_ss$residual_prop))
+
+lims <- seq(from= -18, to = 18, by=2)
+lims <- lims[c(-1, -length(lims))]
+cols_to_use <- brewer.pal(5, "RdBu") # red-blue diverging scale
+# interpolate to more colours
+cols_to_use.fn <- colorRampPalette(cols_to_use)
+contourplot(
+  residual_prop ~ year * age | sex, 
+  data=dta_ss, 
+  region=T, 
+  at=lims,
+  col.regions=rev(cols_to_use.fn(200)), 
+  main="population errors (persons per thousand), identity scale; European subset ")
+dev.off()
 
 
 #####################
