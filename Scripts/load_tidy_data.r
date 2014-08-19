@@ -13,10 +13,10 @@ if(!exists("counts_eu_all")){counts_eu_all <- read.csv("Data/Tidy/counts_eu_all.
 if(!exists("rates_eu_all")){rates_eu_all <- read.csv("Data/Tidy/rates_eu_all.csv")}
 if(!exists("exp_eu_all")){exp_eu_all <- read.csv("Data/Tidy/exp_eu_all.csv")}
 
-# 14 countries reporting in 2011 only
-if(!exists("counts_14")){counts_14 <- read.csv("Data/Tidy/counts_14.csv")}
-if(!exists("rates_14")){rates_14 <- read.csv("Data/Tidy/rates_14.csv")}
-if(!exists("exp_14")){exp_14 <- read.csv("Data/Tidy/exp_14.csv")}
-if(!exists("counts_14_all")){counts_14_all <- read.csv("Data/Tidy/counts_14_all.csv")}
-if(!exists("rates_14_all")){rates_14_all <- read.csv("Data/Tidy/rates_14_all.csv")}
-if(!exists("exp_14_all")){exp_14_all <- read.csv("Data/Tidy/exp_14_all.csv")}
+# 15 countries reporting in 2011 only
+if(!exists("counts_15")){counts_15 <- read.csv("Data/Tidy/counts_15.csv")}
+if(!exists("rates_15")){rates_15 <- read.csv("Data/Tidy/rates_15.csv")}
+if(!exists("exp_15")){exp_15 <- read.csv("Data/Tidy/exp_15.csv")}
+if(!exists("counts_15_all")){counts_15_all <- read.csv("Data/Tidy/counts_15_all.csv")}
+if(!exists("rates_15_all")){rates_15_all <- read.csv("Data/Tidy/rates_15_all.csv")}
+if(!exists("exp_15_all")){exp_15_all <- read.csv("Data/Tidy/exp_15_all.csv")}

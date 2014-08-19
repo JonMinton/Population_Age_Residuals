@@ -110,7 +110,7 @@ agegroups_of_interest <- c(
 
 ###################################################################################################
 
-## as above but only the 14 countries in 2011
+## as above but only the 15 countries in 2011
 europe_codes <- country_codes$short[which(country_codes$europe==1)]
 
 tmp <- dcast(counts, year + country ~ . , length) 
@@ -131,7 +131,7 @@ contourplot(
   region=T, 
   col.regions=rev(heat.colors(200)), 
   cuts=50, 
-  main="mortality rates, identity scale; all available data ")
+  main="")
 dev.off()
 
 #####################
@@ -145,21 +145,23 @@ contourplot(
   region=T, 
   col.regions=rev(heat.colors(200)), 
   cuts=50, 
-  main="mortality rates, log scale; all available data ")
+  main="")
 dev.off()
+
+#######################################################################
 
 ##################
 png(
-  "figures/contour_14europe_identity.png",  
+  "figures/contour_15europe_identity.png",  
   height=1000, width=2000
 )
 contourplot(
   death_rate ~ year * age | sex, 
-  data=subset(rates_14_all, subset=sex!="total" & age <=80), 
+  data=subset(rates_15_all, subset=sex!="total" & age <=80), 
   region=T, 
   col.regions=rev(heat.colors(200)), 
   cuts=50, 
-  main="mortality rates, identity scale; European subset ")
+  main="")
 dev.off()
 
 #####################
@@ -169,11 +171,12 @@ png(
 )
 contourplot(
   log(death_rate) ~ year * age | sex, 
-  data=subset(rates_14_all, subset=sex!="total" & age <=80), 
+  data=subset(rates_15_all, subset=sex!="total" & age <=80), 
   region=T, 
   col.regions=rev(heat.colors(200)), 
   cuts=50, 
-  main="mortality rates, log scale; European subset ")
+  main=NULL
+)
 dev.off()
 
 ##################################
@@ -182,30 +185,32 @@ dev.off()
 ## Now looking at the ages 20 to 50, from 1970 onwards
 ##################
 png(
-  "figures/contour_later14europe_identity.png",  
+  "figures/contour_later15europe_identity.png",  
   height=1000, width=2000
 )
 contourplot(
   death_rate ~ year * age | sex, 
-  data=subset(rates_14_all, subset=sex!="total" & age >= 20 & age <=50 & year >=1970), 
+  data=subset(rates_15_all, subset=sex!="total" & age >= 20 & age <=50 & year >=1970), 
   region=T, 
   col.regions=rev(heat.colors(200)), 
   cuts=50, 
-  main="mortality rates, identity scale; European subset ")
+  main=NULL
+)
 dev.off()
 
 #####################
 png(
-  "figures/contour_later14europe_log.png",  
+  "figures/contour_later15europe_log.png",  
   height=1000, width=2000
 )
 contourplot(
   log(death_rate) ~ year * age | sex, 
-  data=subset(rates_14_all, subset=sex!="total" & age >= 20 & age <=50 & year >=1970), 
+  data=subset(rates_15_all, subset=sex!="total" & age >= 20 & age <=50 & year >=1970), 
   region=T, 
   col.regions=rev(heat.colors(200)), 
   cuts=50, 
-  main="mortality rates, log scale; European subset ")
+  main=NULL
+  )
 dev.off()
 
 
@@ -216,17 +221,17 @@ dev.off()
 ## Now looking at the ages 20 to 50, from 1970 onwards
 ##################
 png(
-  "figures/contourresiduals_later14europe_identity.png",  
+  "figures/contourresiduals_later15europe_identity.png",  
   height=1000, width=2000
 )
-dta_ss <- subset(exp_14_all, subset=sex!="total" & age >= 20 &age <= 50 & year >= 1970)
+dta_ss <- subset(exp_15_all, subset=sex!="total" & age >= 20 &age <= 50 & year >= 1970)
 # want to know the maximum deviation from 0
 dta_ss$residual_prop <- dta_ss$residual_prop * 1000
 
 
 mx <- max(abs(dta_ss$residual_prop))
 
-lims <- seq(from= -18, to = 18, by=2)
+lims <- seq(from= -16, to = 16, by=2)
 lims <- lims[c(-1, -length(lims))]
 cols_to_use <- brewer.pal(5, "RdBu") # red-blue diverging scale
 # interpolate to more colours
@@ -237,26 +242,28 @@ contourplot(
   region=T, 
   at=lims,
   col.regions=rev(cols_to_use.fn(200)), 
-  main="population errors (persons per thousand), identity scale; European subset ")
+  main=NULL
+  )
 dev.off()
 
 
 library(latticeExtra)
 
 # mortality (log) and residuals on same plot, 20-50
-png("Figures/mortality_and_residuals_later14europe_log01.png",  
+png("Figures/composite_latereurope_log.png",  
     height=1000, width=2000)
 p1 <- levelplot(
   residual_prop * 1000 ~ year * age | sex, 
-  data = subset(exp_14_all, subset=sex!="total" & age >= 20 &age <= 50 & year >= 1970),
+  data = subset(exp_15_all, subset=sex!="total" & age >= 20 &age <= 50 & year >= 1970),
   cuts=50,
-  at = seq(from= -16, to = 16, by=2),
+  at = seq(from= -20, to = 20, by=2),
   col.regions = colorRampPalette(rev(brewer.pal(5, "RdBu")))(32),
-  main = "mortality rates (contour) and population errors (shaded), log scale, European subset")
+  main = NULL
+)
 
 p2 <- contourplot(
   log(death_rate) ~ year * age | sex, 
-  data=subset(rates_14_all, subset=sex!="total" & age >= 20 & age <=50 & year >=1970), 
+  data=subset(rates_15_all, subset=sex!="total" & age >= 20 & age <=50 & year >=1970), 
   cuts=50)
 
 print(p1 + p2)
@@ -267,7 +274,7 @@ png("Figures/mortality_and_residuals_later14europe_identity.png",
     height=1000, width=2000)
 p1 <- levelplot(
   residual_prop * 1000 ~ year * age | sex, 
-  data = subset(exp_14_all, subset=sex!="total" & age >= 20 &age <= 50 & year >= 1970),
+  data = subset(exp_15_all, subset=sex!="total" & age >= 20 &age <= 50 & year >= 1970),
   cuts=50,
   at = seq(from= -16, to = 16, by=2),
   col.regions = colorRampPalette(rev(brewer.pal(5, "RdBu")))(32),
@@ -275,7 +282,7 @@ p1 <- levelplot(
 
 p2 <- contourplot(
   death_rate ~ year * age | sex, 
-  data=subset(rates_14_all, subset=sex!="total" & age >= 20 & age <=50 & year >=1970), 
+  data=subset(rates_15_all, subset=sex!="total" & age >= 20 & age <=50 & year >=1970), 
   cuts=50)
 
 print(p1 + p2)

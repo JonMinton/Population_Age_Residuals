@@ -5,11 +5,10 @@ rm(list=ls())
 #options(RCurlOptions = list(verbose = FALSE, capath = system.file("CurlSSL", "cacert.pem", package = "RCurl"), ssl.verifypeer = FALSE))
 
 # TO DO ;
-# residual is expected - actual not the other way around. [DONE]
-# Finally correct this in the exp_14,, exp_14_all, and exp_eu and exp_eu_all counts
-# Once I've done this make sure any little 'tricks' applied later are removed to avoid unfixing!
+# 1) Re-do analyses with Switzerland as part of Europe. 
+# 2) Incorporate composite graph
 
-# Change for
+
 
 ###########################################################################################################
 ###########################################################################################################
