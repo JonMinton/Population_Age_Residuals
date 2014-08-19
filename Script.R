@@ -32,7 +32,8 @@ RequiredPackages(
     "ggplot2",
     "stringr",
     "car",
-    "RColorBrewer"
+    "RColorBrewer",
+    "latticeExtra"
     )
   )
 
