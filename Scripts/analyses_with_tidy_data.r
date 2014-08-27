@@ -48,7 +48,7 @@ png(
 print(
   contourplot(
     log(death_rate) ~ year * age | sex, 
-    data=subset(rates_15_all, subset=sex!="total" & age >= 20 & age <=50 & year >=1970), 
+    data=subset(rates_15_all, subset=sex!="total" & age >= 20 & age <=50 & year >=1970 & year <=2011), 
     region=T, 
     col.regions=rev(heat.colors(200)), 
     cuts=50, 
@@ -68,7 +68,7 @@ png(
   "figures/figure_b__residuals_later15europe.png",  
   height=1000, width=2000
 )
-dta_ss <- subset(exp_15_all, subset=sex!="total" & age >= 20 &age <= 50 & year >= 1970)
+dta_ss <- subset(exp_15_all, subset=sex!="total" & age >= 20 &age <= 50 & year >= 1970 & year <=2011)
 # want to know the maximum deviation from 0
 dta_ss$residual_prop <- dta_ss$residual_prop * 1000
 
@@ -99,7 +99,7 @@ png("Figures/figure_c_combined_later15europe.png",
     height=1000, width=2000)
 p1 <- levelplot(
   residual_prop * 1000 ~ year * age | sex, 
-  data = subset(exp_15_all, subset=sex!="total" & age >= 20 &age <= 50 & year >= 1970),
+  data = subset(exp_15_all, subset=sex!="total" & age >= 20 &age <= 50 & year >= 1970 & year <= 2011),
   cuts=50,
   at = lims,
   col.regions = rev(cols_to_use.fn(200)),
@@ -108,7 +108,7 @@ p1 <- levelplot(
 
 p2 <- contourplot(
   log(death_rate) ~ year * age | sex, 
-  data=subset(rates_15_all, subset=sex!="total" & age >= 20 & age <=50 & year >=1970), 
+  data=subset(rates_15_all, subset=sex!="total" & age >= 20 & age <=50 & year >=1970 & year <= 2011), 
   cuts=50)
 
 print(p1 + p2)
