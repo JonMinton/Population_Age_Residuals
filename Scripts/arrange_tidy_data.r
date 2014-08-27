@@ -1,3 +1,20 @@
+## OK, so the problem seems to be, that including germany means the data is only from 
+## 1990 onwards. But East and West germany have data for the whole period.
+## SO I'll first check if after 1990 they simply sum up to DEUTNP
+germanies <- subset(counts,
+                    subset = country %in% c("DEUTE", "DEUTNP", "DEUTW"))
+library(reshape2)
+germanies <- melt(germanies, id.vars = c("country", "year", "age", "sex"))
+germanies <- dcast(germanies, year+ age+ sex ~ variable + country, value.var = c("value") )
+germanies <- germanies[germanies$year >= 1990,]
+all.equal(germanies$death_count_DEUTE + germanies$death_count_DEUTW ,germanies$death_count_DEUTNP)
+# is TRUE!
+# OK, this means basically we can just use DEUTE + DEUTW for the whole period! and not DEUTNP
+rm(germanies)
+
+country_codes[country_codes$short == "DEUTNP", "europe"] <- 0
+country_codes[country_codes$short == "DEUTE", "europe"] <- 1
+country_codes[country_codes$short == "DEUTW", "europe"] <- 1
 
 europe_codes <- country_codes$short[which(country_codes$europe==1)]
 
@@ -67,9 +84,10 @@ dta_joined$europe <- NULL
 
 
 
+
 ##### Want to do the above but only for the 15 countries observed in 2011
 countries_2011 <- c(
-  "BEL", "CHE", "CZE", "DEUTNP", "DNK", "ESP", "EST",
+  "BEL", "CHE", "CZE", "DEUTE", "DEUTW" ,"DNK", "ESP", "EST",
   "FRATNP", "GBR_NIR", "GBR_SCO", "GBRTENW",
   "LTU",     "LVA",     "PRT",     "SWE"
 )
@@ -123,5 +141,3 @@ exp_15_all <- ddply(
 )
 
 write.csv(exp_eu_all, file="Data/Tidy/exp_15_all.csv", row.names=F)
-
-

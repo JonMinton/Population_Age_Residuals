@@ -8,10 +8,12 @@ if(!exists("rates_15_all")){rates_15_all <- read.csv("../Data/Tidy/rates_15_all.
 if(!exists("exp_15_all")){exp_15_all <- read.csv("../Data/Tidy/exp_15_all.csv")}
 
 # subset only 1970 onwards data for ages 20 - 50
-corr.data <- merge(exp_15_all[exp_15_all$year > 1970 & 
+corr.data <- merge(exp_15_all[exp_15_all$year >= 1970 & 
+                                exp_15_all$year <= 2011 & 
                                 exp_15_all$age >= 20 & 
                                 exp_15_all$age <=50 ,],
-                   rates_15_all[rates_15_all$year > 1970 &
+                   rates_15_all[rates_15_all$year >= 1970 &
+                                  rates_15_all$year <= 2011 & 
                                   rates_15_all$age >= 20 &
                                   rates_15_all$age <=50 ,],
                    by = c("year", "age", "sex"))
@@ -55,7 +57,7 @@ legend("topright", c("total", "under 35", "35 and over"), col = c("green", "blue
 }
 
 ```
-OK, so this is 1970 onwards, 15 European countries.
+OK, so this is 1970 to 2011, unfortunately 2012 only had 4 countries. SO it's for the 15 European countries (fixed missing Germany before 1990.)
 Three sets of results are reported bellow for completeness: for both sexes combined, for males only and for females only. In each case there is regular Pearson coefficients, Pearson on logged death rates and Spearman coefficients. 
 
 Each set of results reports the four quadrants in addition to the four half-way splits and the total for the whole surface. 
