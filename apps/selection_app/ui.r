@@ -54,7 +54,9 @@ and the contour lines indicate mortality rate contours"),
     )
   ),
   hr(),
-  tableOutput("table01")
+  tableOutput("table01"),
+  plotOutput("plot_scp_mort", height="100%"),
+  plotOutput("plot_scp_ppr", height="100%")
 #   h2(textOutput("title_scp_mort")),
 #   plotOutput("plot_scp_mort", height="100%"),
 #   br(),

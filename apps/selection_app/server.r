@@ -31,58 +31,109 @@ print("loaded and composed country info and labels")
 shinyServer(function(input, output){
   print("entered main shiny server")
   #select specific country
+  redo_everything <- reactive({
+    go <- input$country_group_selection_compile
+    
+    if (go){
+      out <- get_country_selection()
+    } else {out <- NULL}
+    return(out)
+  })
+  
   get_country_selection <- reactive({
     tmp <- input$country_group_selection
-    go <- input$country_group_selection_compile
     
     age_min <- input$age_range[1]
     age_max <- input$age_range[2]
     year_min <- input$year_range[1]
     year_max <- input$year_range[2]
     
-    if (tmp!="" & go){
-      countries_selected <- subset(
+    countries_selected <- subset(
         country_info,
         subset=labels %in% tmp
         )$short
       
-      counts_ss <- subset(
-        counts,
-        subset = country %in% countries_selected & 
-          age >= age_min & age <=age_max & 
-          year >= year_min & year <= year_max
-        )
+    counts_ss <- subset(
+      counts,
+      subset = country %in% countries_selected & 
+        age >= age_min & age <=age_max & 
+        year >= year_min & year <= year_max
+      )
+  
+    expectations_ss <- subset(
+      expectations,
+      subset= country %in% countries_selected & 
+        age >= age_min & age <=age_max & 
+        year >= year_min & year <= year_max
+      )
     
-      expectations_ss <- subset(
-        expectations,
-        subset= country %in% countries_selected & 
-          age >= age_min & age <=age_max & 
-          year >= year_min & year <= year_max
-        )
-      
-      out <- join(counts_ss, expectations_ss)
-      out <- ddply(
-        out, .(sex, year, age),
-        summarise,
-        death_count=sum(death_count),
-        population_count=sum(population_count),
-        population_expected= sum(population_expected)
-        )
-      out <- mutate(out,
-                    ppr = (population_count - population_expected) / population_expected
-                    )
-    } else (out <- NULL)
-    return(out)    
+    out <- join(counts_ss, expectations_ss)
+    out <- ddply(
+      out, .(sex, year, age),
+      summarise,
+      death_count=sum(death_count),
+      population_count=sum(population_count),
+      population_expected= sum(population_expected)
+      )
+    out <- mutate(out,
+                  death_rate = death_count/population_count,
+                  ppr = 1000 * (population_count - population_expected) / population_expected
+                  )
+    
+    return(out)
   })
   
   output$table01 <- renderTable({
-    tmp <- get_country_selection()
+    tmp <- redo_everything()
     
     if (!is.null(tmp)){
       out <- head(tmp)
     } else {out <- NULL}
     return(out)
   })
+  
+  output$plot_scp_mort <- renderPlot({
+    dta <- redo_everything()
+    
+    if(!is.null(dta)){
+       out <- contourplot(
+      death_rate ~ year * age | sex, 
+      data=dta, 
+      region=T, 
+      col.regions=rev(heat.colors(200)), 
+      cuts=50, 
+      main=NULL
+      )      
+    } else {out <- NULL}
+    return(out)
+  }, height=800, width=1600)
+  
+  output$plot_scp_ppr <- renderPlot({
+    dta <- redo_everything()
+    
+    if(!is.null(dta)){
+ 
+         mx <- max(abs(dta$ppr))
+         
+         lims <- seq(from= -18, to = 18, by=2)
+         lims <- lims[c(-1, -length(lims))]
+         cols_to_use <- brewer.pal(5, "RdBu") # red-blue diverging scale
+      #   # interpolate to more colours
+         cols_to_use.fn <- colorRampPalette(cols_to_use)
+       out <- contourplot(
+        ppr ~ year * age | sex, 
+        data=dta, 
+        region=T, 
+        at=lims,
+        col.regions=rev(cols_to_use.fn(200)), 
+        main=NULL
+        )
+      
+    } else {out <- NULL}
+    return(out)
+  }, height=800, width=1600)
+  
+  
 })
 #   
 #   output$text_clp_title <- renderText({
@@ -92,7 +143,7 @@ shinyServer(function(input, output){
   
 #   
 #   output$plot_overall <- renderPlot({
-#   }, height=800, width=1600)
+#   }, )
 #   
 #   output$plot_clp <- renderPlot({
 #   }, height=800, width=1600)
@@ -135,14 +186,7 @@ shinyServer(function(input, output){
 #   #   "figures/contour_later15europe_identity.png",  
 #   #   height=1000, width=2000
 #   # )
-#   # contourplot(
-#   #   death_rate ~ year * age | sex, 
-#   #   data=subset(rates_15_all, subset=sex!="total" & age >= 20 & age <=50 & year >=1970), 
-#   #   region=T, 
-#   #   col.regions=rev(heat.colors(200)), 
-#   #   cuts=50, 
-#   #   main=NULL
-#   # )
+
 #   # dev.off()
 #   
 #   #####################
@@ -174,28 +218,6 @@ shinyServer(function(input, output){
 #     height=1000, width=2000
 #   )
 #   dta_ss <- subset(exp_15_all, subset=sex!="total" & age >= 20 &age <= 50 & year >= 1970 & year <=2011)
-#   # want to know the maximum deviation from 0
-#   dta_ss$residual_prop <- dta_ss$residual_prop * 1000
-#   
-#   
-#   mx <- max(abs(dta_ss$residual_prop))
-#   
-#   lims <- seq(from= -18, to = 18, by=2)
-#   lims <- lims[c(-1, -length(lims))]
-#   cols_to_use <- brewer.pal(5, "RdBu") # red-blue diverging scale
-#   # interpolate to more colours
-#   cols_to_use.fn <- colorRampPalette(cols_to_use)
-#   print(
-#     contourplot(
-#       residual_prop ~ year * age | sex, 
-#       data=dta_ss, 
-#       region=T, 
-#       at=lims,
-#       col.regions=rev(cols_to_use.fn(200)), 
-#       main=NULL
-#     )
-#   )
-#   dev.off()
 #   
 #   
 #   
