@@ -1,7 +1,7 @@
 
-rm(list=ls())
 
 require(plyr)
+require(dplyr)
 require(lattice)
 require(latticeExtra)
 require(RColorBrewer)
@@ -35,7 +35,7 @@ shinyServer(function(input, output){
     go <- input$country_group_selection_compile
     
     if (go){
-      out <- get_country_selection()
+      out <- isolate(get_country_selection())
     } else {out <- NULL}
     return(out)
   })
@@ -114,8 +114,8 @@ shinyServer(function(input, output){
     if(!is.null(dta)){
  
          mx <- max(abs(dta$ppr))
-         
-         lims <- seq(from= -18, to = 18, by=2)
+         mx <- mx - mx %%2 + 2
+         lims <- seq(from= -mx, to = mx, by=2)
          lims <- lims[c(-1, -length(lims))]
          cols_to_use <- brewer.pal(5, "RdBu") # red-blue diverging scale
       #   # interpolate to more colours
