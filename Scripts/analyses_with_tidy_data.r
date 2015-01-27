@@ -119,6 +119,46 @@ dev.off()
 ##########################################################################################
 ##########################################################################################
 
+# Illustration for AQMEN briefing paper
+
+###########################################################################
+# RESIDUALS ONLY 
+## Now looking at the ages 20 to 50, from 1970 onwards
+##################
+png(
+  "figures/briefing_paper/residuals_later15europe_male_only.png",  
+  height=800, width=800
+)
+dta_ss <- subset(exp_15_all, subset=sex=="total" & age >= 15 &age <= 60 & year >= 1970 & year <=2011)
+# want to know the maximum deviation from 0
+dta_ss$residual_prop <- dta_ss$residual_prop * 1000
+
+
+mx <- max(abs(dta_ss$residual_prop))
+
+lims <- seq(from= -18, to = 18, by=2)
+lims <- lims[c(-1, -length(lims))]
+cols_to_use <- brewer.pal(5, "RdBu") # red-blue diverging scale
+# interpolate to more colours
+cols_to_use.fn <- colorRampPalette(cols_to_use)
+print(
+  contourplot(
+    residual_prop ~ year * age, 
+    data=dta_ss, 
+    region=T, 
+    at=lims,
+    col.regions=rev(cols_to_use.fn(200)), 
+    main=NULL
+  )
+)
+dev.off()
+
+
+#########################################################################################
+#########################################################################################
+
+
+
 # mortality regular and residuals on same plot, 20-50
 png("Figures/mortality_and_residuals_later15europe_identity.png",  
     height=1000, width=2000)
