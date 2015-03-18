@@ -57,7 +57,18 @@ print(
 )
 dev.off()
 
+# Example of same image using small multiples
 
+# sectioning by year
+
+require(dplyr)
+
+rates_15_all %>%
+  filter(age >=20 & age <=50 & year >=1970 & year <=2011 & sex !="total") %>%
+  ggplot(data=.) +
+  geom_line(aes(x=age, y=log(death_rate), group=sex, colour=sex)) +
+  facet_wrap(~year)
+  
 
 
 ###########################################################################
@@ -92,6 +103,15 @@ print(
 )
 dev.off()
 
+# ggplot example
+
+require(dplyr)
+
+exp_15_all %>%
+  filter(age >=20 & age <=50 & year >=1970 & year <=2011 & sex !="total") %>%
+  ggplot(data=.) +
+  geom_line(aes(x=age, y=residual_prop, group=sex, colour=sex)) +
+  facet_wrap(~year)
 
 
 # mortality (log) and residuals on same plot, 20-50

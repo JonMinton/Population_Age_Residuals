@@ -12,6 +12,7 @@ require(dplyr)
 
 require(ggplot2)
 require(lattice)
+require(RColorBrewer)
 require(rgl)
 require(r2stl)
 
