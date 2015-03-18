@@ -40,10 +40,18 @@ eu_2011_countries <- as.character(tmp$country[which(tmp$country %in%  europe_cod
 # )
 # dev.off()
 
+# need to do so that res is 300dpi 
+# 10 by 20 cm
+#cm to inch
+#0.394
 #####################
+
+
+cm_to_in <- 0.394
+ppi <- 300
 png(
-  "figures/figure_a_contour_later15europe_log.png",  
-  height=1000, width=2000
+  "figures/figure_b_lmort.png",  
+  height=ppi * 10 * cm_to_in, width=ppi * 20 * cm_to_in
 )
 print(
   contourplot(
@@ -52,7 +60,12 @@ print(
     region=T, 
     col.regions=rev(heat.colors(200)), 
     cuts=50, 
-    main=NULL
+    main=NULL,
+    par.strip.text=list(cex=1.2, fontface="bold"),
+    ylab=list(cex=1.3, label="Age in years"),
+    xlab=list(cex=1.3, label="Year"),
+    scales=list(cex=1.1)
+    
     )
 )
 dev.off()
@@ -75,9 +88,12 @@ rates_15_all %>%
 # RESIDUALS ONLY 
 ## Now looking at the ages 20 to 50, from 1970 onwards
 ##################
+
+cm_to_in <- 0.394
+ppi <- 300
 png(
-  "figures/figure_b__residuals_later15europe.png",  
-  height=1000, width=2000
+  "figures/figure_a_residuals.png",  
+  height=ppi * 10 * cm_to_in, width=ppi * 20 * cm_to_in
 )
 dta_ss <- subset(exp_15_all, subset=sex!="total" & age >= 20 &age <= 50 & year >= 1970 & year <=2011)
 # want to know the maximum deviation from 0
@@ -98,7 +114,11 @@ print(
   region=T, 
   at=lims,
   col.regions=rev(cols_to_use.fn(200)), 
-  main=NULL
+  main=NULL,
+  par.strip.text=list(cex=1.2, fontface="bold"),
+  ylab=list(cex=1.3, label="Age in years"),
+  xlab=list(cex=1.3, label="Year"),
+  scales=list(cex=1.1)
   )
 )
 dev.off()
@@ -114,16 +134,25 @@ exp_15_all %>%
   facet_wrap(~year)
 
 
+cm_to_in <- 0.394
+ppi <- 300
+png(
+  "figures/figure_c_combined.png",  
+  height=ppi * 10 * cm_to_in, width=ppi * 20 * cm_to_in
+)
+
 # mortality (log) and residuals on same plot, 20-50
-png("Figures/figure_c_combined_later15europe.png",  
-    height=1000, width=2000)
 p1 <- levelplot(
   residual_prop * 1000 ~ year * age | sex, 
   data = subset(exp_15_all, subset=sex!="total" & age >= 20 &age <= 50 & year >= 1970 & year <= 2011),
   cuts=50,
   at = lims,
   col.regions = rev(cols_to_use.fn(200)),
-  main = NULL
+  main = NULL,
+  par.strip.text=list(cex=1.2, fontface="bold"),
+  ylab=list(cex=1.3, label="Age in years"),
+  xlab=list(cex=1.3, label="Year"),
+  scales=list(cex=1.1)
 )
 
 p2 <- contourplot(
