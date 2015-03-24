@@ -81,7 +81,23 @@ rates_15_all %>%
   ggplot(data=.) +
   geom_line(aes(x=age, y=log(death_rate), group=sex, colour=sex)) +
   facet_wrap(~year)
-  
+
+# sectioning by age
+
+rates_15_all %>%
+  filter(age >=20 & age <=50 & year >=1970 & year <=2011 & sex !="total") %>%
+  ggplot(data=.) +
+  geom_line(aes(x=year, y=log(death_rate), group=sex, colour=sex)) +
+  facet_wrap(~age)
+
+# sectioning by cohort
+
+rates_15_all %>%
+  mutate(cohort=year - age) %>%
+  filter(age >=20 & age <=50 & year >=1970 & year <=2011 & sex !="total") %>%
+  ggplot(data=.) +
+  geom_line(aes(x=age, y=log(death_rate), group=sex, colour=sex)) +
+  facet_wrap(~cohort)
 
 
 ###########################################################################
@@ -127,12 +143,27 @@ dev.off()
 
 require(dplyr)
 
+#age 
 exp_15_all %>%
   filter(age >=20 & age <=50 & year >=1970 & year <=2011 & sex !="total") %>%
   ggplot(data=.) +
   geom_line(aes(x=age, y=residual_prop, group=sex, colour=sex)) +
   facet_wrap(~year)
 
+# period
+exp_15_all %>%
+  filter(age >=20 & age <=50 & year >=1970 & year <=2011 & sex !="total") %>%
+  ggplot(data=.) +
+  geom_line(aes(x=year, y=residual_prop, group=sex, colour=sex)) +
+  facet_wrap(~age)
+
+#cohort
+exp_15_all %>%
+  mutate(cohort=year-age) %>%
+  filter(age >=20 & age <=50 & year >=1970 & year <=2011 & sex !="total") %>%
+  ggplot(data=.) +
+  geom_line(aes(x=age, y=residual_prop, group=sex, colour=sex)) +
+  facet_wrap(~cohort)
 
 cm_to_in <- 0.394
 ppi <- 300
