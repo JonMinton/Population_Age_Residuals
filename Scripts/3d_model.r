@@ -72,26 +72,13 @@ tmp_f <- tmp_f[,-1]
 tmp_f <- t(apply(tmp_f, 1, rev))
 
 
-spacer <- matrix(0, ncol=2, nrow=dim(tmp_f)[1])
 
-tmp_joined <- cbind(tmp_m, spacer, tmp_f)
+tmp_joined <- cbind(tmp_m, tmp_f)
 
 persp3d(x=tmp_joined, col="white")
 
-new_mat <- matrix(
-  max(tmp_joined) * 0.02, 
-  ncol=ncol(tmp_joined) + 6,
-  nrow=nrow(tmp_joined) + 6
-)
 
-new_mat[
-  4:(nrow(new_mat) - 3),
-  4:(ncol(new_mat) - 3)
-  ] <- tmp_joined
-
-persp3d(x=new_mat, col="white")
-
-r2stl(x=1:nrow(new_mat), y=1:ncol(new_mat), z=new_mat, file="stl/lmort_both.stl", z.expand=TRUE)
+r2stl(x=1:nrow(tmp_joined), y=1:ncol(tmp_joined), z=tmp_joined, file="stl/lmort_both.stl", z.expand=TRUE)
 
 
 
@@ -141,20 +128,8 @@ tmp_joined <- cbind(tmp_m, spacer, tmp_f)
 
 persp3d(x=tmp_joined, col="white")
 
-new_mat <- matrix(
-  0, 
-  ncol=ncol(tmp_joined) + 6,
-  nrow=nrow(tmp_joined) + 6
-                  )
 
-new_mat[
-  4:(nrow(new_mat) - 3),
-  4:(ncol(new_mat) - 3)
-  ] <- tmp_joined
-
-persp3d(x=new_mat, col="white")
-
-r2stl(x=1:nrow(new_mat), y=1:ncol(new_mat), z=new_mat, file="stl/ppr.stl", z.expand=TRUE)
+r2stl(x=1:nrow(tmp_joined), y=1:ncol(tmp_joined), z=tmp_joined, file="stl/ppr.stl", z.expand=TRUE)
 # 
 
 
