@@ -65,7 +65,6 @@ print(
     ylab=list(cex=2, label="Age in years", fontface="bold"),
     xlab=list(cex=2, label="Year", fontface="bold"),
     scales=list(cex=2.0, alternating=3),
-    col="grey",
     labels=list(cex=1.4, fontface="bold")
     )
 )
