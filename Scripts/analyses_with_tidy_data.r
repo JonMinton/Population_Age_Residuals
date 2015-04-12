@@ -61,11 +61,12 @@ print(
     col.regions=rev(heat.colors(200)), 
     cuts=50, 
     main=NULL,
-    par.strip.text=list(cex=1.2, fontface="bold"),
-    ylab=list(cex=1.3, label="Age in years"),
-    xlab=list(cex=1.3, label="Year"),
-    scales=list(cex=1.1)
-    
+    par.strip.text=list(cex=2.5, fontface="bold"),
+    ylab=list(cex=2, label="Age in years", fontface="bold"),
+    xlab=list(cex=2, label="Year", fontface="bold"),
+    scales=list(cex=2.0, alternating=3),
+    col="grey",
+    labels=list(cex=1.4, fontface="bold")
     )
 )
 dev.off()
@@ -131,10 +132,12 @@ print(
   at=lims,
   col.regions=rev(cols_to_use.fn(200)), 
   main=NULL,
-  par.strip.text=list(cex=1.2, fontface="bold"),
-  ylab=list(cex=1.3, label="Age in years"),
-  xlab=list(cex=1.3, label="Year"),
-  scales=list(cex=1.1)
+  par.strip.text=list(cex=2.5, fontface="bold"),
+  ylab=list(cex=2, label="Age in years", fontface="bold"),
+  xlab=list(cex=2, label="Year", fontface="bold"),
+  scales=list(cex=2.0, alternating=3),
+  col="grey",
+  labels=list(cex=1.4, fontface="bold")
   )
 )
 dev.off()
@@ -180,16 +183,19 @@ p1 <- levelplot(
   at = lims,
   col.regions = rev(cols_to_use.fn(200)),
   main = NULL,
-  par.strip.text=list(cex=1.2, fontface="bold"),
-  ylab=list(cex=1.3, label="Age in years"),
-  xlab=list(cex=1.3, label="Year"),
-  scales=list(cex=1.1)
+  par.strip.text=list(cex=2.5, fontface="bold"),
+  ylab=list(cex=2, label="Age in years", fontface="bold"),
+  xlab=list(cex=2, label="Year", fontface="bold"),
+  scales=list(cex=2.0, alternating=3),
 )
 
 p2 <- contourplot(
   log(death_rate) ~ year * age | sex, 
   data=subset(rates_15_all, subset=sex!="total" & age >= 20 & age <=50 & year >=1970 & year <= 2011), 
-  cuts=50)
+  cuts=50,
+  col="grey",
+  labels=list(cex=1.4, fontface="bold")
+  )
 
 print(p1 + p2)
 dev.off()
