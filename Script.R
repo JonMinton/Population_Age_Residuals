@@ -32,7 +32,8 @@ RequiredPackages(
     "stringr",
     "car",
     "RColorBrewer",
-    "latticeExtra"
+    "latticeExtra",
+    "dplyr"
     )
   )
 
