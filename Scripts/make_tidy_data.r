@@ -187,20 +187,65 @@ expected_europe_western_2011 <- counts %>% calculate_expected_counts(selection=i
 expected_europe_eastern_2011 <- counts %>% calculate_expected_counts(selection=intersect(europe_eastern, europe_2011_subset))
 
 expected_europe <- bind_rows(
-  expected_europe_all %>% mutate(region="all"),
-  expected_europe_northern %>% mutate(region="northern"),
-  expected_europe_southern %>% mutate(region="southern"),
-  expected_europe_western %>% mutate(region="western"),
-  expected_europe_eastern %>% mutate(region="eastern")
+  expected_europe_all %>% mutate(region="All"),
+  expected_europe_northern %>% mutate(region="Northern"),
+  expected_europe_southern %>% mutate(region="Southern"),
+  expected_europe_western %>% mutate(region="Western"),
+  expected_europe_eastern %>% mutate(region="Eastern")
 )
   
 expected_europe_2011 <- bind_rows(
-  expected_europe_all_2011 %>% mutate(region="all"),
-  expected_europe_northern_2011 %>% mutate(region="northern"),
-  expected_europe_southern_2011 %>% mutate(region="southern"),
-  expected_europe_western_2011 %>% mutate(region="western"),
-  expected_europe_eastern_2011 %>% mutate(region="eastern")
+  expected_europe_all_2011 %>% mutate(region="All"),
+  expected_europe_northern_2011 %>% mutate(region="Northern"),
+  expected_europe_southern_2011 %>% mutate(region="Southern"),
+  expected_europe_western_2011 %>% mutate(region="Western"),
+  expected_europe_eastern_2011 %>% mutate(region="Eastern")
 )
+
+# Want to do some smoothing to make the contour lines less busy
+
+smooth_something <- function(what){
+  function(input, smooth_par){
+    this_sex <- input$sex[1]
+    this_region <- input$region[1]
+  
+    dta <- input %>%
+      select_("year", "age", what) %>%
+      spread_(key="age", value=what) 
+    ages <- names(dta)[-1]
+    years <- dta$year
+    dta$year <- NULL
+    dta <- as.matrix(dta)
+    rownames(dta) <- years
+    colnames(dta) <- ages
+    dta[is.infinite(dta) & dta < 0] <- min(dta[is.finite(dta)]) # correct for infinities
+    dta[is.infinite(dta) & dta > 0] <- max(dta[is.finite(dta)])
+    dta_blurred <- as.matrix(blur(as.im(dta), sigma=smooth_par))  
+    rownames(dta_blurred) <- rownames(dta)
+    colnames(dta_blurred) <- colnames(dta)
+    output <- data.frame(
+      year=years, 
+      sex=this_sex,
+      country=this_country,
+    dta_blurred
+    )
+  output <- output %>%
+    gather_(key="age", value=what, -"year", -"sex", -"country")
+  
+  output$age <- output$age %>%
+    str_replace("X", "") %>%
+    as.character %>%
+    as.numeric
+  return(output)    
+  }
+}
+
+dif_logs_blurred <- dif_logs %>%
+  select(-europe) %>%
+  gather(key=country, value=lmort, -year, -age, -sex) %>%  
+  ddply(.data = ., .(sex, country), fn, smooth_par=1.5) %>%
+  tbl_df 
+
 
 rm(
   expected_europe_all, 
