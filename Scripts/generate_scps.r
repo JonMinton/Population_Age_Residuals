@@ -1,13 +1,5 @@
 
 
-
-
-###########################################################################
-# RESIDUALS ONLY 
-## Now looking at the ages 20 to 50, from 1970 onwards
-##################
-
-
 png(
   "figures/figure_a_residuals.png",  
   height=20, width=40,
@@ -25,6 +17,8 @@ lims <- lims[c(-1, -length(lims))]
 cols_to_use <- brewer.pal(5, "RdBu") # red-blue diverging scale
 # interpolate to more colours
 cols_to_use.fn <- colorRampPalette(cols_to_use)
+
+
 print(
   contourplot(
   residual_prop ~ year * age | sex, 

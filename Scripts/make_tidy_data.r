@@ -1,66 +1,218 @@
 
 # Make tidy data
 
-#rm(list=ls())
-load("Data/RObj/Derived_Data.RData")
+counts <- read.csv(file="data/Tidy/counts.csv") %>% tbl_df
 
-deaths_long <- ldply(Deaths.numeric)
-deaths_long <- rename(deaths_long, c(".id"= "country"))
-names(deaths_long) <- tolower(names(deaths_long))
-deaths_long <- melt(deaths_long, id.var=c("country", "year", "age"))
-deaths_long <- rename(deaths_long, c("variable"="sex", "value"= "death_count"))
+# group germany together
 
+tmp <- counts %>% 
+  filter(country %in% c("DEUTE", "DEUTW")) %>% 
+  group_by(year, age, sex) %>% 
+  summarise(
+    death_count=sum(death_count), 
+    population_count=sum(population_count)
+            ) %>% 
+  mutate(country="DEUT") %>% 
+  select(country, year, age, sex, death_count, population_count)
 
-pops_long <- ldply(Populations.numeric)
-pops_long <- rename(pops_long, c(".id"="country"))
-names(pops_long) <- tolower(names(pops_long))
-pops_long <- melt(pops_long, id.var=c("country", "year", "age"))
-pops_long <- rename(pops_long, c("variable"="sex", "value"= "population_count"))
-
-
-counts_tidy <- join(x=deaths_long, y=pops_long, by=c("country", "year", "age", "sex"), type="inner")
-
-rates_tidy <- counts_tidy 
-rates_tidy <- mutate(rates_tidy, death_rate = death_count / population_count)
-rates_tidy$death_count <- NULL
-rates_tidy$population_count <- NULL
-
-write.csv(counts_tidy, file="Data/Tidy/counts.csv", row.names=F)
-write.csv(rates_tidy, file="Data/Tidy/rates.csv", row.names=F)
+counts <- counts %>% bind_rows(tmp)
 
 
-# Ideally should be able to produce the expectations from the count file directly
+# Define groups of countries ----------------------------------------------
 
-fn <- function(x){
+
+europe_2011_subset <- c(
+    Belgium="BEL", 
+    Switzerland="CHE", 
+    `Czech Republic`="CZE", 
+    Germany="DEUT",
+    Denmark="DNK", 
+    Spain="ESP", 
+    Estonia="EST",
+    France="FRATNP", 
+    `Northern Ireland`="GBR_NIR", 
+    Scotland="GBR_SCO", 
+    `England and Wales`="GBRTENW",
+    Lithuania="LTU",     
+    Latvia="LVA",     
+    Portugal="PRT",     
+    Sweden="SWE"
+  )
+
+europe_all <- c(
+  Austria="AUT",
+  Belgium="BEL", 
+  Switzerland="CHE", 
+  `Czech Republic`="CZE", 
+  Germany="DEUT",
+  Denmark="DNK", 
+  Spain="ESP", 
+  Estonia="EST",
+  France="FRATNP", 
+  `Northern Ireland`="GBR_NIR", 
+  Scotland="GBR_SCO", 
+  `England and Wales`="GBRTENW",
+  Lithuania="LTU",     
+  Latvia="LVA",     
+  Portugal="PRT",     
+  Sweden="SWE",
+  Slovenia = "SVN",
+  Slovakia = "SVK",
+  Poland="POL",
+  Norway="NOR",
+  Ireland="IRL",
+  Poland="POL",
+  Luxembourg="LUX",
+  Italy="ITA",
+  Hungary="HUN",
+  Ukraine="UKR",
+  Belarus="BLR", 
+  Finland="FIN"
+)
+
+europe_western <- c(
+  Austria="AUT",
+  Belgium="BEL", 
+  Switzerland="CHE", 
+  Germany="DEUT",
+  France="FRATNP", 
+  `Northern Ireland`="GBR_NIR", 
+  Scotland="GBR_SCO", 
+  `England and Wales`="GBRTENW",
+  Ireland="IRL",
+  Luxembourg="LUX"
+)
+
+europe_northern <- c(
+  Denmark="DNK", 
+  Sweden="SWE",
+  Finland="FIN",
+  Norway="NOR"
+)
+
+europe_southern <- c(
+  Spain="ESP", 
+  Portugal="PRT",     
+  Luxembourg="LUX",
+  Italy="ITA",
+  Hungary="HUN",
+  Ukraine="UKR",
+  Belarus="BLR", 
+  Finland="FIN"
+)
+
+europe_eastern <- c(
+  Estonia="EST",
+  Lithuania="LTU",     
+  Latvia="LVA",     
+  Slovenia = "SVN",
+  Slovakia = "SVK",
+  Poland="POL",
+  Ukraine="UKR",
+  Belarus="BLR"
+)
+
+aggregate_counts <- function(x, selection){
+  out <- x %>% filter(country %in% selection) %>% 
+    group_by(year, age, sex) %>% 
+    summarise(
+      death_count=sum(death_count), 
+      population_count=sum(population_count)
+      ) %>% ungroup
   
-  years <- sort(unique(x$year))
-  ages <- sort(unique(x$age))
-
-  years_viable <- years[-1]
-  ages_viable <- ages[ages!=0]
-  
-  out <- x
-  out$population_expected <- NA
-  
-  for (i in years_viable){
-    for (j in ages_viable){
-      population.lastyear <- subset(x, subset =year==i-1 & age==j-1)$population_count
-      deaths.lastyear <- subset(x, subset=year==i-1 & age ==j - 1)$death_count
-      
-      if ((length(population.lastyear)==1) & (length(deaths.lastyear)==1)){
-        population.expected <- population.lastyear - deaths.lastyear
-        out$population_expected[out$year==i & out$age==j] <- population.expected
-      } else {
-        cat("year: ", i, "\tage: ", j, "\n")
-      }
-    }
-  }
   return(out)
 }
 
-expectations_tidy <- ddply(counts_tidy, .(country, sex), fn, .progress="text")
+calculate_expected_counts <- function(x, selection){
+  y <- aggregate_counts(x, selection)
+  
+  expd_mtrx_list <- list()
+  ages <- sort(unique(y$age))
+  years <- sort(unique(y$year))
+  for (sx in unique(y$sex)){
+    dth <- y %>% 
+      filter(sex==sx) %>% 
+      select(age, year, death_count) %>% 
+      spread(key=year, value=death_count) 
+    ages <- dth$age
+    dth <- dth[,-1]
+    dth <- as.matrix(dth)
+    rownames(dth) <- ages
+    dms <- dim(dth)
+    
+    pop <- y %>% 
+      filter(sex==sx) %>% 
+      select(age, year, population_count) %>% 
+      spread(key=year, value=population_count) 
+    pop <- pop[,-1]
+    pop <- as.matrix(pop)
+    rownames(pop) <- ages
+    
+    expd <- pop[-dms[1],-dms[2]] - dth[-dms[1], -dms[2]]
+    
+    dimnames(expd) <- dimnames(pop[-1,-1])
+    
+    expd_mtrx_list[[sx]]<- expd    
+  }
+  
+  subfn <- function(xx){
+    ages <- rownames(xx)
+    years <- colnames(xx)
+    xx <- as.data.frame(xx)
+    xx$age <- ages 
+    xx <- xx %>% 
+      gather(key=year, value=expected_count, -age) %>% 
+      mutate(year=as.integer(as.character(year)), 
+             age=as.integer(as.character(age))
+             )
+    xx <- xx %>% select(year, age, expected_count)
+    return(xx)
+  }
+  
+  expd_long <- ldply(expd_mtrx_list, subfn, .id="sex")
+  out <- y %>% left_join(expd_long) %>% tbl_df
+  return(out)
+}
 
-expectations_tidy$death_count <- NULL
-expectations_tidy <- expectations_tidy[which(!is.na(expectations_tidy$population_expected)),]
-expectations_tidy <- rename(expectations_tidy, c("population_count"="population_actual"))
-write.csv(expectations_tidy, file="Data/Tidy/expectations.csv", row.names=F)
+expected_europe_all <- counts %>% calculate_expected_counts(selection=europe_all)
+expected_europe_northern <- counts %>% calculate_expected_counts(selection=europe_northern)
+expected_europe_southern <- counts %>% calculate_expected_counts(selection=europe_southern)
+expected_europe_western <- counts %>% calculate_expected_counts(selection=europe_western)
+expected_europe_eastern <- counts %>% calculate_expected_counts(selection=europe_eastern)
+
+expected_europe_all_2011 <- counts %>% calculate_expected_counts(selection=intersect(europe_all, europe_2011_subset))
+expected_europe_northern_2011 <- counts %>% calculate_expected_counts(selection=intersect(europe_northern, europe_2011_subset))
+expected_europe_southern_2011 <- counts %>% calculate_expected_counts(selection=intersect(europe_southern, europe_2011_subset))
+expected_europe_western_2011 <- counts %>% calculate_expected_counts(selection=intersect(europe_western, europe_2011_subset))
+expected_europe_eastern_2011 <- counts %>% calculate_expected_counts(selection=intersect(europe_eastern, europe_2011_subset))
+
+expected_europe <- bind_rows(
+  expected_europe_all %>% mutate(region="all"),
+  expected_europe_northern %>% mutate(region="northern"),
+  expected_europe_southern %>% mutate(region="southern"),
+  expected_europe_western %>% mutate(region="western"),
+  expected_europe_eastern %>% mutate(region="eastern")
+)
+  
+expected_europe_2011 <- bind_rows(
+  expected_europe_all_2011 %>% mutate(region="all"),
+  expected_europe_northern_2011 %>% mutate(region="northern"),
+  expected_europe_southern_2011 %>% mutate(region="southern"),
+  expected_europe_western_2011 %>% mutate(region="western"),
+  expected_europe_eastern_2011 %>% mutate(region="eastern")
+)
+
+rm(
+  expected_europe_all, 
+  expected_europe_northern,
+  expected_europe_southern, 
+  expected_europe_western, 
+  expected_europe_eastern, 
+  
+  expected_europe_all_2011, 
+  expected_europe_northern_2011, 
+  expected_europe_southern_2011, 
+  expected_europe_western_2011, 
+  expected_europe_eastern_2011 
+)  
+
