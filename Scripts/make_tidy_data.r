@@ -202,49 +202,54 @@ expected_europe_2011 <- bind_rows(
   expected_europe_eastern_2011 %>% mutate(region="Eastern")
 )
 
-# Want to do some smoothing to make the contour lines less busy
+# smooth for contour line representations 
 
-smooth_something <- function(what){
-  function(input, smooth_par){
-    this_sex <- input$sex[1]
-    this_region <- input$region[1]
+smooth_var <- function(dta,  group_vars, smooth_var, smooth_par){
+
+  dta_ss <- dta[, names(dta) %in% c("age", "year", group_vars, smooth_var)]
   
-    dta <- input %>%
-      select_("year", "age", what) %>%
-      spread_(key="age", value=what) 
-    ages <- names(dta)[-1]
-    years <- dta$year
-    dta$year <- NULL
-    dta <- as.matrix(dta)
-    rownames(dta) <- years
-    colnames(dta) <- ages
-    dta[is.infinite(dta) & dta < 0] <- min(dta[is.finite(dta)]) # correct for infinities
-    dta[is.infinite(dta) & dta > 0] <- max(dta[is.finite(dta)])
-    dta_blurred <- as.matrix(blur(as.im(dta), sigma=smooth_par))  
-    rownames(dta_blurred) <- rownames(dta)
-    colnames(dta_blurred) <- colnames(dta)
-    output <- data.frame(
-      year=years, 
-      sex=this_sex,
-      country=this_country,
-    dta_blurred
-    )
-  output <- output %>%
-    gather_(key="age", value=what, -"year", -"sex", -"country")
-  
-  output$age <- output$age %>%
-    str_replace("X", "") %>%
-    as.character %>%
-    as.numeric
-  return(output)    
+  smooth_subfn <- function(xx){
+    yy <- xx %>% spread(key=age, value=var_to_smooth)
+    years <- yy$year
+    yy$year <- NULL
+    yy <- as.matrix(yy)
+    rownames(yy) <- years
+    colnames(y) <- ages
+    dta[is.infinite(yy) & yy < 0] <- min(dta[is.finite(yy)]) # correct for infinities
+    dta[is.infinite(yy) & yy > 0] <- max(dta[is.finite(yy)])
+    zz <- as.matrix(blur(as.im(yy), sigma=smooth_par))  
+    rownames(zz) <- rownames(yy)
+    colnames(zz) <- colnames(yy)
+    
+    zz <- as.data.frame(zz)
+    zz$year <- rownames(zz)
+    zz <- zz %>% gather(key=age, value=smoothed_var, -year)
+    zz$age <- zz$age %>%
+      str_replace("X", "") %>%
+      as.character %>%
+      as.numeric
+    
+    return(zz)
   }
+  
+  manage_smooth_fn <- function(x){
+    dta_groups <- x[, names(x) %in% group_vars]
+    dta_to_smooth <- x[, c("age", "year", smooth_var)]
+    names(dta_to_smooth)[smooth_var] <- "var_to_smooth"
+    
+    dta_smoothed <- smooth_subfn(dta_to_smooth)
+    dta_smoothed <- bind_cols(dta_groups, dta_smoothed)
+    
+    return(dta_smoothed)
+  }
+  
+  smoothed_var_list <- dlply(dta, group_vars, manage_smooth_fn)
+  
+  smoothed_var_df <- ldply(smoothed_vars_list)
+  
+  return(smoothed_var_df)
 }
-
-dif_logs_blurred <- dif_logs %>%
-  select(-europe) %>%
-  gather(key=country, value=lmort, -year, -age, -sex) %>%  
-  ddply(.data = ., .(sex, country), fn, smooth_par=1.5) %>%
-  tbl_df 
+  
 
 
 rm(
