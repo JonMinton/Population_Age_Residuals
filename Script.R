@@ -32,7 +32,7 @@ require(spatstat)
 ############################################################################################################
 ############################################################################################################
 source("Scripts/make_tidy_data.r")
-
+source("Scripts/smoother_function.R")
 
 # SCPs --------------------------------------------------------------------
 
@@ -87,9 +87,14 @@ dev.off()
 dta_ss <- expected_europe_2011  %>% 
   filter(!is.na(expected_count))  %>% 
   mutate(residual_prop = 1000 *(population_count - expected_count)/ expected_count)  %>% 
-  filter(sex!="total" & age >=20 & age <=50 & year >=1970 & year <=2011)
+  filter(sex!="total" & age <=90 & year >=1970 & year <=2010)
 
-mx <- max(abs(dta_ss$residual_prop))
+dta_ss_smoothed <- dta_ss %>% 
+  smooth_var(., 
+             group_vars=c("sex", "region"), 
+             smooth_var="residual_prop", smooth_par=1.0)
+
+mx <- max(abs(dta_ss_smoothed$residual_prop))
 
 lims <- seq(from= -40, to = 40, by=5)
 
@@ -99,14 +104,14 @@ cols_to_use.fn <- colorRampPalette(cols_to_use)
 
 png(
   "figures/residuals_lattice_2011.png",  
-  height=20, width=30,
+  height=25, width=30,
   res=300, units="cm"
 )
 
 print(
   contourplot(
     residual_prop ~ year * age | region * sex, 
-    data=dta_ss, 
+    data=dta_ss_smoothed, 
     region=T, 
     at=lims,
     col.regions=rev(cols_to_use.fn(200)), 
@@ -173,14 +178,12 @@ dev.off()
 
 png(
   "figures/log_mort_lattice_2011.png",  
-  height=20, width=30,
+  height=25, width=30,
   res=300, units="cm"
 )
 
 dta_ss <- expected_europe_2011 %>% 
-  filter(
-    sex!="total" & age >= 20 & age <=50 & 
-      year >=1970 & year <=2011  ) %>% 
+  filter(sex!="total") %>% 
   mutate(
     death_rate = death_count/population_count,
     lg_death_rate = log(death_rate, base=10)
@@ -188,17 +191,20 @@ dta_ss <- expected_europe_2011 %>%
 
 # should be smoothed for Eastern and Northern Europe...
 
+dta_ss_smoothed <- smooth_var(dta_ss, group_vars=c("sex", "region"), "lg_death_rate", 1.0)
 
 print(
+  dta_ss_smoothed %>% 
+    filter(age <=90 & year >=1970 & year <=2010) %>% 
   contourplot(
     lg_death_rate ~ year * age | region * sex, 
-    data=dta_ss, 
+    data=., 
     region=T, 
     strip=strip.custom(par.strip.text=list(cex=1.4, fontface="bold"), bg="grey"),
     ylab=list(label="Age in years", cex=1.4),
     xlab=list(label="Year", cex=1.4),
     cex=1.4,
-    cuts=15,
+    cuts=20,
     col.regions=colorRampPalette(brewer.pal(9, "Reds"))(100),
     main=NULL,
     labels=list(cex=1.2),
