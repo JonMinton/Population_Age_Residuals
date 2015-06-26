@@ -402,20 +402,21 @@ calc_windowed_correlations <- function(DTA, WINDOW=4){
   fn <- function(x){
     local_dta <- DTA %>% 
       filter(
+        sex == x$sex,
         year >= x$year  - WINDOW & 
           year <= x$year  + WINDOW &
           age >= x$age  - WINDOW &
           age <= x$age  + WINDOW
           ) %>% select(residual_prop, lg_cmr)
-    local_cor <- cor(x=local_dta$residual_prop, y = local_dta$residual_prop, method = "spearman")
-    out <- data.frame(year = x$year, age = x$age)
+    local_cor <- cor(x=local_dta$residual_prop, y = local_dta$lg_cmr, method = "spearman")
+    out <- data.frame(year = x$year, age = x$age, sex = x$sex, local_cor=local_cor)
     
     return(out)
   }
   
   out <- out  %>% 
     rowwise() %>% 
-    mutate(local_cor = fn(.))
+    do(fn(.))
 
     return(out)
 }
