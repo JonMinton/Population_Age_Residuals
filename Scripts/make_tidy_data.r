@@ -1,4 +1,7 @@
 
+# Load country group definitions 
+
+source("Scripts/country_group_definitions.R")
 # Make tidy data
 
 counts <- read.csv(file="data/Tidy/counts.csv") %>% tbl_df
@@ -17,100 +20,6 @@ tmp <- counts %>%
 
 counts <- counts %>% bind_rows(tmp)
 
-
-# Define groups of countries ----------------------------------------------
-
-
-europe_2011_subset <- c(
-    Belgium="BEL", 
-    Switzerland="CHE", 
-    `Czech Republic`="CZE", 
-    Germany="DEUT",
-    Denmark="DNK", 
-    Spain="ESP", 
-    Estonia="EST",
-    France="FRATNP", 
-    `Northern Ireland`="GBR_NIR", 
-    Scotland="GBR_SCO", 
-    `England and Wales`="GBRTENW",
-    Lithuania="LTU",     
-    Latvia="LVA",     
-    Portugal="PRT",     
-    Sweden="SWE"
-  )
-
-europe_all <- c(
-  Austria="AUT",
-  Belgium="BEL", 
-  Switzerland="CHE", 
-  `Czech Republic`="CZE", 
-  Germany="DEUT",
-  Denmark="DNK", 
-  Spain="ESP", 
-  Estonia="EST",
-  France="FRATNP", 
-  `Northern Ireland`="GBR_NIR", 
-  Scotland="GBR_SCO", 
-  `England and Wales`="GBRTENW",
-  Lithuania="LTU",     
-  Latvia="LVA",     
-  Portugal="PRT",     
-  Sweden="SWE",
-  Slovenia = "SVN",
-  Slovakia = "SVK",
-  Poland="POL",
-  Norway="NOR",
-  Ireland="IRL",
-  Poland="POL",
-  Luxembourg="LUX",
-  Italy="ITA",
-  Hungary="HUN",
-  Ukraine="UKR",
-  Belarus="BLR", 
-  Finland="FIN"
-)
-
-europe_western <- c(
-  Austria="AUT",
-  Belgium="BEL", 
-  Switzerland="CHE", 
-  Germany="DEUT",
-  France="FRATNP", 
-  `Northern Ireland`="GBR_NIR", 
-  Scotland="GBR_SCO", 
-  `England and Wales`="GBRTENW",
-  Ireland="IRL",
-  Luxembourg="LUX"
-)
-
-europe_northern <- c(
-  Denmark="DNK", 
-  Sweden="SWE",
-  Finland="FIN",
-  Norway="NOR"
-)
-
-europe_southern <- c(
-  Spain="ESP", 
-  Portugal="PRT",     
-  Luxembourg="LUX",
-  Italy="ITA",
-  Hungary="HUN",
-  Ukraine="UKR",
-  Belarus="BLR", 
-  Finland="FIN"
-)
-
-europe_eastern <- c(
-  Estonia="EST",
-  Lithuania="LTU",     
-  Latvia="LVA",     
-  Slovenia = "SVN",
-  Slovakia = "SVK",
-  Poland="POL",
-  Ukraine="UKR",
-  Belarus="BLR"
-)
 
 aggregate_counts <- function(x, selection){
   out <- x %>% filter(country %in% selection) %>% 
@@ -174,13 +83,13 @@ calculate_expected_counts <- function(x, selection){
   return(out)
 }
 
-expected_europe_all <- counts %>% calculate_expected_counts(selection=europe_all)
+expected_europe_all <- counts %>% calculate_expected_counts(selection=europe_codes)
 expected_europe_northern <- counts %>% calculate_expected_counts(selection=europe_northern)
 expected_europe_southern <- counts %>% calculate_expected_counts(selection=europe_southern)
 expected_europe_western <- counts %>% calculate_expected_counts(selection=europe_western)
 expected_europe_eastern <- counts %>% calculate_expected_counts(selection=europe_eastern)
 
-expected_europe_all_2011 <- counts %>% calculate_expected_counts(selection=intersect(europe_all, europe_2011_subset))
+expected_europe_all_2011 <- counts %>% calculate_expected_counts(selection=intersect(europe_codes, europe_2011_subset))
 expected_europe_northern_2011 <- counts %>% calculate_expected_counts(selection=intersect(europe_northern, europe_2011_subset))
 expected_europe_southern_2011 <- counts %>% calculate_expected_counts(selection=intersect(europe_southern, europe_2011_subset))
 expected_europe_western_2011 <- counts %>% calculate_expected_counts(selection=intersect(europe_western, europe_2011_subset))
@@ -215,6 +124,7 @@ rm(
   expected_europe_northern_2011, 
   expected_europe_southern_2011, 
   expected_europe_western_2011, 
-  expected_europe_eastern_2011 
+  expected_europe_eastern_2011,
+  tmp
 )  
 

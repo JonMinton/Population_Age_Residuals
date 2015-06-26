@@ -8,8 +8,6 @@ rm(list=ls())
 # 1) Re-do analyses with Switzerland as part of Europe. 
 # 2) Incorporate composite graph
 
-
-
 ###########################################################################################################
 ###########################################################################################################
 # Run some of the existing scripts and analyses using the newer data : use this to produce the 
@@ -36,71 +34,57 @@ source("Scripts/smoother_function.R")
 
 # SCPs --------------------------------------------------------------------
 
-
-
 png(
-  "figures/residuals_all_2011.png",  
+  "figures/ppr_all_europe2011_age20_50_year1970_2010.png",  
   height=20, width=40,
   res=300, units="cm"
 )
 
-dta_ss <- expected_europe_2011  %>% 
+expected_europe_2011  %>% 
   filter(!is.na(expected_count))  %>% 
-  mutate(residual_prop = 1000 *(population_count - expected_count)/ expected_count)  %>% 
-  filter(sex!="total" & age >=20 & age <=50 & 
-           year >=1970 & year <=2011 & region =="All")
+  filter(sex!="total" & 
+           age >=20 & age <=50 & 
+           year >=1970 & year <=2011 & 
+           region =="All") %>% 
+  
+  plot_ppr(., COL="darkgrey") %>% print
 
-mx <- max(abs(dta_ss$residual_prop))
-
-lims <- seq(from= -20, to = 20, by=2)
-
-cols_to_use <- brewer.pal(5, "RdBu") # red-blue diverging scale
-# interpolate to more colours
-cols_to_use.fn <- colorRampPalette(cols_to_use)
-#greyscale strip
-
-print(
-  contourplot(
-    residual_prop ~ year * age | sex, 
-    data=dta_ss, 
-    region=T, 
-    at=lims,
-    col.regions=rev(cols_to_use.fn(200)), 
-    main=NULL,
-    col="black",
-    strip=strip.custom(par.strip.text=list(cex=1.4, fontface="bold"), bg="grey"),
-    ylab=list(label="Age in years", cex=1.4),
-    xlab=list(label="Year", cex=1.4),
-    cex=1.4,
-    labels=list(cex=1.2),
-    scales=list(
-      x=list(cex=1.4), 
-      y=list(cex=1.4),
-      alternating=3
-    )
-  )
-)
 dev.off()
+
+png(
+  "figures/ppr_all_europe2011_age0_90_year1950_2010.png",  
+  height=20, width=40,
+  res=300, units="cm"
+)
+
+expected_europe_2011  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age >=0 & age <=80 & 
+           year >=1950 & year <=2011 & 
+           region =="All") %>% 
+  mutate(residual_prop = 1000 *(population_count - expected_count)/ expected_count)  %>% 
+  plot_smoothed_ppr(., COL="darkgrey", SMOOTH_PAR=1.0) %>% print
+
+
+dev.off()
+
 
 # for each region
 
-dta_ss <- expected_europe_2011  %>% 
-  filter(!is.na(expected_count))  %>% 
-  mutate(residual_prop = 1000 *(population_count - expected_count)/ expected_count)  %>% 
-  filter(sex!="total" & age <=90 & year >=1970 & year <=2010)
 
-dta_ss_smoothed <- dta_ss %>% 
-  smooth_var(., 
-             group_vars=c("sex", "region"), 
-             smooth_var="residual_prop", smooth_par=1.0)
-
-mx <- max(abs(dta_ss_smoothed$residual_prop))
-
-lims <- seq(from= -40, to = 40, by=5)
-
-cols_to_use <- brewer.pal(5, "RdBu") # red-blue diverging scale
-# interpolate to more colours
-cols_to_use.fn <- colorRampPalette(cols_to_use)
+expected_europe_2011 %>% 
+  filter(!is.na(expected_count)) %>% 
+  mutate(residual_prop = 1000 * (population_count - expected_count) / expected_count) %>% 
+  filter(sex !="total" & 
+           age <= 80 & 
+           year >= 1960 & year <= 2010
+           ) %>% 
+  plot_smoothed_region_ppr(. , 
+                           LIMS = seq(from = -40, to = 40, by = 5),
+                           SMOOTH_PAR = 1.0,
+                            COL = "darkgrey"
+                           ) %>% print
 
 png(
   "figures/residuals_lattice_2011.png",  
@@ -108,116 +92,55 @@ png(
   res=300, units="cm"
 )
 
-print(
-  contourplot(
-    residual_prop ~ year * age | region * sex, 
-    data=dta_ss_smoothed, 
-    region=T, 
-    at=lims,
-    col.regions=rev(cols_to_use.fn(200)), 
-    main=NULL,
-    col="grey",
-    strip=strip.custom(par.strip.text=list(cex=1), bg="grey"),
-    ylab=list(label="Age in years", cex=1.4),
-    xlab=list(label="Year", cex=1.4),
-    cex=1.4,
-    labels=list(cex=0.9),
-    scales=list(
-      x=list(cex=1.0), 
-      y=list(cex=1.0),
-      alternating=3
-    )
-  )
-)
 dev.off()
 
 # Mortality rates: all 
 
 
 png(
-  "figures/log_mort_all_2011.png",  
-  height=20, width=40,
+  "figures/lgcmr_all_europe2011_age20_50_year1970_2010.png",  
+  height=20, width=30,
   res=300, units="cm"
 )
-dta_ss <- expected_europe_2011 %>% 
+expected_europe_2011 %>% 
   filter(
     sex!="total" & age >= 20 & age <=50 & 
       year >=1970 & year <=2011 & 
-      region=="All"
-  ) %>% 
-  mutate(
-    death_rate = death_count/population_count,
-    lg_death_rate = log(death_rate, base=10)
-    ) 
-
-print(
-  contourplot(
-    lg_death_rate ~ year * age | sex, 
-    data=dta_ss, 
-    region=T, 
-    strip=strip.custom(par.strip.text=list(cex=1.4, fontface="bold"), bg="grey"),
-    ylab=list(label="Age in years", cex=1.4),
-    xlab=list(label="Year", cex=1.4),
-    cex=1.4,
-    cuts=15,
-    col.regions=colorRampPalette(brewer.pal(9, "Reds"))(100),
-    main=NULL,
-    labels=list(cex=1.2),
-    col="blue",
-    scales=list(
-      x=list(cex=1.4), 
-      y=list(cex=1.4),
-      alternating=3
-    )
-    
-  )
-)
+      region == "All"
+  ) %>% plot_lgcmr() %>% print
 dev.off()
 
 # for each region
-
 png(
-  "figures/log_mort_lattice_2011.png",  
+  "figures/lg_cmr_lattice_age_20_50_year_1970_2011.png",  
   height=25, width=30,
   res=300, units="cm"
 )
 
-dta_ss <- expected_europe_2011 %>% 
-  filter(sex!="total") %>% 
-  mutate(
-    death_rate = death_count/population_count,
-    lg_death_rate = log(death_rate, base=10)
-  ) 
+expected_europe_2011 %>% 
+  filter(
+    sex!="total" & age >= 20 & age <=50 & 
+      year >=1970 & year <=2011 
+  ) %>% plot_smoothed_region_lgcmr(. , SMOOTH_PAR=0.8) %>% print
 
-# should be smoothed for Eastern and Northern Europe...
-
-dta_ss_smoothed <- smooth_var(dta_ss, group_vars=c("sex", "region"), "lg_death_rate", 1.0)
-
-print(
-  dta_ss_smoothed %>% 
-    filter(age <=90 & year >=1970 & year <=2010) %>% 
-  contourplot(
-    lg_death_rate ~ year * age | region * sex, 
-    data=., 
-    region=T, 
-    strip=strip.custom(par.strip.text=list(cex=1.4, fontface="bold"), bg="grey"),
-    ylab=list(label="Age in years", cex=1.4),
-    xlab=list(label="Year", cex=1.4),
-    cex=1.4,
-    cuts=20,
-    col.regions=colorRampPalette(brewer.pal(9, "Reds"))(100),
-    main=NULL,
-    labels=list(cex=1.2),
-    col="blue",
-    scales=list(
-      x=list(cex=1.4), 
-      y=list(cex=1.4),
-      alternating=3
-    )
-    
-  )
-)
 dev.off()
+
+
+png(
+  "figures/lg_cmr_lattice_age_0_80_year_1960_2010.png",  
+  height=25, width=30,
+  res=300, units="cm"
+)
+
+expected_europe_2011 %>% 
+  filter(
+    sex!="total" & age >= 0 & age <=90 & 
+      year >=1960 & year <= 2010 
+  ) %>% plot_smoothed_region_lgcmr(. , SMOOTH_PAR=0.8) %>% print
+
+dev.off()
+
+
 
 
 png(
@@ -227,48 +150,27 @@ png(
 )
 
 # mortality (log) and residuals on same plot, 20-50
-p1 <- expected_europe_2011 %>% 
-  filter(!is.na(expected_count))  %>% 
-  mutate(residual_prop = 1000 *(population_count - expected_count)/ expected_count)  %>% 
-  filter(sex!="total" & age >=20 & age <=50 & year >=1970 & year <=2011) %>% 
-  levelplot(
-  residual_prop  ~ year * age | sex, 
-  data = . ,
-  cuts=30,
-  at = lims,
-  col.regions = rev(cols_to_use.fn(200)),
-  main = NULL,
-  strip=strip.custom(par.strip.text=list(cex=1.4, fontface="bold"), bg="grey"),
-  ylab=list(label="Age in years", cex=1.4),
-  xlab=list(label="Year", cex=1.4),
-  cex=1.4,
-  scales=list(
-    x=list(cex=1.4), 
-    y=list(cex=1.4),
-    alternating=3
-  )
-)
-
-p2 <- contourplot(
-  log(death_rate) ~ year * age | sex, 
-  data=subset(rates_15_all, subset=sex!="total" & age >= 20 & age <=50 & year >=1970 & year <= 2011), 
-  cuts=30,
-  labels=list(cex=1.2),
-  cex=1.4,
-  region=F,
-  main=NULL,
-  col="black",
-  par.strip.text=list(cex=1.4, fontface="bold"),
-  ylab=list(label="Age in years", cex=1.4),
-  xlab=list(label="Year", cex=1.4),
-  scales=list(
-    x=list(cex=1.4), 
-    y=list(cex=1.4),
-    alternating=3
-  )
-)
-
-
-print(p1 + p2)
+png("figures/composite_years_1970_2011_ages_20_50.png",
+    height = 30, width = 30,
+    res=300, units = "cm"
+    )
+expected_europe_2011 %>% 
+  filter( age >= 20 & age <= 50 & 
+            year >= 1970 & year <=2011 & 
+  sex != "total" & region == "All" ) %>% 
+  plot_composite(.)  %>% print
 dev.off()
+
+png("figures/composite_years_1960_2011_ages_20_800.png",
+    height = 30, width = 40,
+    res=300, units = "cm"
+)
+
+expected_europe_2011 %>% 
+  filter( age >= 0 & age <= 80 & 
+            year >= 1960 & year <=2011 & 
+            sex != "total" & region == "All" ) %>% 
+  plot_composite(., LIMS = seq(from= -20, to = 20, by=2), CUTS = 25)  %>% print
+dev.off()
+
 
