@@ -34,14 +34,18 @@ smooth_var <- function(dta,  group_vars, smooth_var, smooth_par){
   
   manage_smooth_fn <- function(x){
     x <- x[!is.na(x[,smooth_var]),] 
-    
-    dta_groups <- x[1, group_vars]
+
+    if (!is.null(group_vars)){
+      dta_groups <- x[1, group_vars]
+    }    
     dta_to_smooth <- x[, c("age", "year", smooth_var)]
     names(dta_to_smooth)[3] <- "var_to_smooth"
     
     dta_smoothed <- smooth_subfn(dta_to_smooth)
     
-    dta_smoothed <- data.frame(dta_groups, dta_smoothed)
+    if (!is.null(group_vars)){
+      dta_smoothed <- data.frame(dta_groups, dta_smoothed)
+    }    
     
     return(dta_smoothed)
   }
