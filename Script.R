@@ -216,8 +216,36 @@ png("figures/local_correlations_map.png",
   dev.off()
   
   
-tmp <-   expected_europe_2011 %>% 
+local_corrs_region <-   expected_europe_2011 %>% 
     filter( age >= 0 & age <= 80 & 
               year >= 1960 & year <=2011 & 
               sex != "total" )  %>% 
     group_by(region) %>% do(calc_windowed_correlations(. , WINDOW = 6))
+
+png("figures/local_correlations_by_region_map.png",
+    height = 40, width = 80,
+    res=300, units = "cm"
+)
+cols_to_use.fn <- colorRampPalette(brewer.pal(5, "RdBu"))
+contourplot(
+  local_cor ~ year * age | region + sex, 
+  data=local_corrs_region, 
+  region=T, 
+  at=  seq(from= -1, to = 1, by=0.2),                 
+  col.regions=rev(cols_to_use.fn(200)), 
+  main=NULL,
+  col="black",
+  aspect = "iso",
+  strip=strip.custom(par.strip.text=list(cex=1.4, fontface="bold"), bg="grey"),
+  ylab=list(label="Age in years", cex=1.4),
+  xlab=list(label="Year", cex=1.4),
+  cex=1.4,
+  labels=list(cex=1.2),
+  scales=list(
+    x=list(cex=1.4), 
+    y=list(cex=1.4),
+    alternating=3
+  )
+) %>% print
+
+dev.off()
