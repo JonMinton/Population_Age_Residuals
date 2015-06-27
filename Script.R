@@ -215,3 +215,9 @@ png("figures/local_correlations_map.png",
   
   dev.off()
   
+  
+tmp <-   expected_europe_2011 %>% 
+    filter( age >= 0 & age <= 80 & 
+              year >= 1960 & year <=2011 & 
+              sex != "total" )  %>% 
+    group_by(region) %>% do(calc_windowed_correlations(. , WINDOW = 6))
