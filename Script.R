@@ -31,6 +31,7 @@ require(spatstat)
 ############################################################################################################
 source("Scripts/make_tidy_data.r")
 source("Scripts/smoother_function.R")
+source("Scripts/lexis_surface_helper_functions.R")
 
 # SCPs --------------------------------------------------------------------
 
@@ -50,6 +51,8 @@ expected_europe_2011  %>%
   plot_ppr(., COL="darkgrey") %>% print
 
 dev.off()
+
+###############################################################################
 
 png(
   "figures/ppr_all_europe2011_age0_90_year1950_2010.png",  
@@ -73,24 +76,24 @@ dev.off()
 # for each region
 
 
-expected_europe_2011 %>% 
-  filter(!is.na(expected_count)) %>% 
-  mutate(residual_prop = 1000 * (population_count - expected_count) / expected_count) %>% 
-  filter(sex !="total" & 
-           age <= 80 & 
-           year >= 1960 & year <= 2010
-           ) %>% 
-  plot_smoothed_region_ppr(. , 
-                           LIMS = seq(from = -40, to = 40, by = 5),
-                           SMOOTH_PAR = 1.0,
-                            COL = "darkgrey"
-                           ) %>% print
 
 png(
   "figures/residuals_lattice_2011.png",  
   height=25, width=30,
   res=300, units="cm"
 )
+expected_europe_2011 %>% 
+  filter(!is.na(expected_count)) %>% 
+  mutate(residual_prop = 1000 * (population_count - expected_count) / expected_count) %>% 
+  filter(sex !="total" & 
+           age <= 80 & 
+           year >= 1960 & year <= 2010
+  ) %>% 
+  plot_smoothed_region_ppr(. , 
+                           LIMS = seq(from = -40, to = 40, by = 5),
+                           SMOOTH_PAR = 1.0,
+                           COL = "darkgrey"
+  ) 
 
 dev.off()
 
@@ -113,7 +116,7 @@ dev.off()
 # for each region
 png(
   "figures/lg_cmr_lattice_age_20_50_year_1970_2011.png",  
-  height=25, width=30,
+  height=25, width=40,
   res=300, units="cm"
 )
 
@@ -180,7 +183,8 @@ dev.off()
 local_corrs <- expected_europe_2011 %>% 
   filter( age >= 0 & age <= 80 & 
             year >= 1960 & year <=2011 & 
-            sex != "total" & region == "All" )  %>% calc_windowed_correlations
+            sex != "total" & region == "All" )  %>% 
+  calc_windowed_correlations(WINDOW = 6)
 
 
 png("figures/local_correlations_map.png",
