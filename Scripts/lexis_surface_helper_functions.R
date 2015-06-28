@@ -584,7 +584,7 @@ plot_local_cor_region <- function(DTA){
   )
   
   
-  return(out)
+  return(output)
 }
 
 
@@ -613,7 +613,7 @@ plot_local_cor <- function(DTA){
   )
   
   
-  return(out)
+  return(output)
 }
 
 
