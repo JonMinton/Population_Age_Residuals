@@ -69,12 +69,12 @@ outputs <- expand.grid(
 # 22 2011 short lattice composite
 # 23  all  long lattice composite
 # 24 2011  long lattice composite
-# 25  all short overall      cors
-# 26 2011 short overall      cors
+# 25  all short overall      cors XXX
+# 26 2011 short overall      cors XXX
 # 27  all  long overall      cors
 # 28 2011  long overall      cors
-# 29  all short lattice      cors
-# 30 2011 short lattice      cors
+# 29  all short lattice      cors XXX
+# 30 2011 short lattice      cors XXX
 # 31  all  long lattice      cors
 # 32 2011  long lattice      cors
 
