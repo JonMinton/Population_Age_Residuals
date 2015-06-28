@@ -455,6 +455,72 @@ plot_composite <- function(
 }
 
 
+plot_region_composite <- function(
+  DTA,
+  COLS_TO_USE = brewer.pal(5, "RdBu"),
+  ASPECT = "iso",
+  LIMS = seq(from= -20, to = 20, by=2),
+  CUTS = 15
+  
+){
+  
+  DTA <- DTA %>% 
+    filter(!is.na(expected_count) & sex !="total") %>% 
+    mutate(
+      residual_prop = 1000 *(population_count - expected_count)/ expected_count,
+      cmr = death_count / population_count,
+      lg_cmr = log(cmr, base = 10)
+    )
+  
+  
+  mx <- max(abs(DTA$residual_prop))
+  cols_to_use.fn <- colorRampPalette(COLS_TO_USE)
+  
+  
+  shade_residual <- DTA %>% 
+    levelplot(
+      residual_prop  ~ year * age | region + sex, 
+      data = . ,
+      at = LIMS,
+      col.regions = cols_to_use.fn,
+      main = NULL,
+      strip=strip.custom(par.strip.text=list(cex=1.4, fontface="bold"), bg="grey"),
+      ylab=list(label="Age in years", cex=1.4),
+      xlab=list(label="Year", cex=1.4),
+      cex=1.4,
+      aspect = ASPECT,
+      scales=list(
+        x=list(cex=1.4), 
+        y=list(cex=1.4),
+        alternating=3
+      )
+    )
+  
+  contour_lgcmr <- DTA %>% 
+    contourplot(
+      lg_cmr ~ year * age | region + sex, 
+      data=. ,  
+      cuts=CUTS,
+      labels=list(cex=1.2),
+      cex=1.4,
+      region=F,
+      main=NULL,
+      col="black",
+      par.strip.text=list(cex=1.4, fontface="bold"),
+      ylab="",
+      xlab="", 
+      aspect = ASPECT,
+      scales=list(
+        x=list(cex=1.4), 
+        y=list(cex=1.4),
+        alternating=3
+      )
+    )
+  
+  output <- shade_residual + contour_lgcmr
+  return(output)
+}
+
 calc_windowed_correlations <- function(DTA, WINDOW=4){
   DTA <- DTA %>% 
     filter(!is.na(expected_count) & sex !="total") %>% 
@@ -492,3 +558,62 @@ calc_windowed_correlations <- function(DTA, WINDOW=4){
 
     return(out)
 }
+
+plot_local_cor_region <- function(DTA){
+  
+  cols_to_use.fn <- colorRampPalette(brewer.pal(5, "RdBu"))
+  output <- contourplot(
+    local_cor ~ year * age | region + sex, 
+    data=DTA, 
+    region=T, 
+    at=  seq(from= -1, to = 1, by=0.2),                 
+    col.regions=rev(cols_to_use.fn(200)), 
+    main=NULL,
+    col="black",
+    aspect = "iso",
+    strip=strip.custom(par.strip.text=list(cex=1.4, fontface="bold"), bg="grey"),
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
+    cex=1.4,
+    labels=list(cex=1.2),
+    scales=list(
+      x=list(cex=1.4), 
+      y=list(cex=1.4),
+      alternating=3
+    )
+  )
+  
+  
+  return(out)
+}
+
+
+plot_local_cor <- function(DTA){
+  
+  cols_to_use.fn <- colorRampPalette(brewer.pal(5, "RdBu"))
+  output <- contourplot(
+    local_cor ~ year * age | sex, 
+    data=DTA, 
+    region=T, 
+    at=  seq(from= -1, to = 1, by=0.2),                 
+    col.regions=rev(cols_to_use.fn(200)), 
+    main=NULL,
+    col="black",
+    aspect = "iso",
+    strip=strip.custom(par.strip.text=list(cex=1.4, fontface="bold"), bg="grey"),
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
+    cex=1.4,
+    labels=list(cex=1.2),
+    scales=list(
+      x=list(cex=1.4), 
+      y=list(cex=1.4),
+      alternating=3
+    )
+  )
+  
+  
+  return(out)
+}
+
+

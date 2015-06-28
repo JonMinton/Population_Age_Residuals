@@ -478,7 +478,7 @@ dev.off()
 
 png(
   "figures/all_short_lattice_composite.png",  
-  height=30, width=40,
+  height=25, width=50,
   res=300, units="cm"
 )
 
@@ -486,10 +486,9 @@ expected_europe  %>%
   filter(!is.na(expected_count))  %>% 
   filter(sex!="total" & 
            age >= 20 & age <= 50 & 
-           year >= 1950 & year <=2009  &
-           region =="All"
+           year >= 1970 & year <=2009 
   ) %>%   
-  plot_region_lcomposite(.       
+  plot_region_composite(.       
   ) %>% 
   print
 
@@ -498,25 +497,101 @@ dev.off()
 
 # 22 2011 short lattice composite
 
+png(
+  "figures/2011_short_lattice_composite.png",  
+  height=25, width=50,
+  res=300, units="cm"
+)
+
+expected_europe_2011  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age >= 20 & age <= 50 & 
+           year >= 1970 & year <=2011 
+  ) %>%   
+  plot_region_composite(.       
+  ) %>% 
+  print
+
+dev.off()
+
+
 # 23  all  long lattice composite
+
+png(
+  "figures/all_long_lattice_composite.png",  
+  height=25, width=50,
+  res=300, units="cm"
+)
+
+expected_europe  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age <= 80 & 
+           year >= 1950 & year <=2009 
+  ) %>%   
+  plot_region_composite(.       
+  ) %>% 
+  print
+
+dev.off()
 
 # 24 2011  long lattice composite
 
-# 25  all short overall      cors
+png(
+  "figures/2011_long_lattice_composite.png",  
+  height=25, width=50,
+  res=300, units="cm"
+)
 
-# 26 2011 short overall      cors
+expected_europe_2011  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age <= 80 & 
+           year >= 1950 & year <=2011 
+  ) %>%   
+  plot_region_composite(.       
+  ) %>% 
+  print
+
+dev.off()
 
 # 27  all  long overall      cors
 
+local_corrs_all <-   expected_europe %>% 
+  filter( age >= 0 & age <= 80 & 
+            year >= 1960 & year <=2009 & 
+            sex != "total" & region == "All")  %>% 
+  do(calc_windowed_correlations(. , WINDOW = 6))
+
+local_corrs_all %>% plot_local_cor(.) %>% print
+
 # 28 2011  long overall      cors
+local_corrs_2011 <-   expected_europe_2011 %>% 
+  filter( age >= 0 & age <= 80 & 
+            year >= 1960 & year <=2011 & 
+            sex != "total" & region =="All")  %>% 
+  do(calc_windowed_correlations(. , WINDOW = 6))
 
-# 29  all short lattice      cors
+local_corrs_2011 %>% plot_local_cor(.) %>% print
 
-# 30 2011 short lattice      cors
+# 31 all  long lattice      cors
+local_corrs_region_all <-   expected_europe %>% 
+  filter( age >= 0 & age <= 80 & 
+            year >= 1960 & year <=2009 & 
+            sex != "total" )  %>% 
+  group_by(region) %>% do(calc_windowed_correlations(. , WINDOW = 6))
 
-# 31  all  long lattice      cors
+local_corrs_region_all %>% plot_local_cor_region(.) %>% print
 
 # 32 2011  long lattice      cors
+local_corrs_region_2011 <-   expected_europe_2011 %>% 
+  filter( age >= 0 & age <= 80 & 
+            year >= 1960 & year <=2011 & 
+            sex != "total" )  %>% 
+  group_by(region) %>% do(calc_windowed_correlations(. , WINDOW = 6))
+
+local_corrs_region_2011 %>% plot_local_cor_region(.) %>% print
 
 # SCPs --------------------------------------------------------------------
 
