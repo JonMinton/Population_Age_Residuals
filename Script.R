@@ -33,6 +33,491 @@ source("Scripts/make_tidy_data.r")
 source("Scripts/smoother_function.R")
 source("Scripts/lexis_surface_helper_functions.R")
 
+
+#Outputs of interest
+
+outputs <- expand.grid(
+  dta = c("all", "2011"),
+  range = c("short", "long"),
+  plt = c("overall", "lattice"),
+  out = c("cmr", "ppr", "composite", "cors")
+  )
+
+# > outputs
+# dta range     plt       out
+# 1   all short overall       cmr
+# 2  2011 short overall       cmr
+# 3   all  long overall       cmr
+# 4  2011  long overall       cmr
+# 5   all short lattice       cmr
+# 6  2011 short lattice       cmr
+# 7   all  long lattice       cmr
+# 8  2011  long lattice       cmr
+# 9   all short overall       ppr
+# 10 2011 short overall       ppr
+# 11  all  long overall       ppr
+# 12 2011  long overall       ppr
+# 13  all short lattice       ppr
+# 14 2011 short lattice       ppr
+# 15  all  long lattice       ppr
+# 16 2011  long lattice       ppr
+# 17  all short overall composite
+# 18 2011 short overall composite
+# 19  all  long overall composite
+# 20 2011  long overall composite
+# 21  all short lattice composite
+# 22 2011 short lattice composite
+# 23  all  long lattice composite
+# 24 2011  long lattice composite
+# 25  all short overall      cors
+# 26 2011 short overall      cors
+# 27  all  long overall      cors
+# 28 2011  long overall      cors
+# 29  all short lattice      cors
+# 30 2011 short lattice      cors
+# 31  all  long lattice      cors
+# 32 2011  long lattice      cors
+
+# > outputs
+# dta range     plt       out
+# 1   all short overall       cmr
+png(
+  "figures/all_short_overall_cmr.png",  
+  height=20, width=40,
+  res=300, units="cm"
+)
+
+expected_europe  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age >=20 & age <=50 & 
+           year >=1970 & year <=2009 & 
+           region =="All") %>%   
+  plot_lgcmr(.) %>% print
+
+dev.off()
+
+
+# 2  2011 short overall       cmr
+
+png(
+  "figures/2011_short_overall_cmr.png",  
+  height=20, width=40,
+  res=300, units="cm"
+)
+
+expected_europe_2011  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age >=20 & age <=50 & 
+           year >=1970 & year <=2011 & 
+           region =="All") %>%   
+  plot_lgcmr(.) %>% print
+
+dev.off()
+
+# 3   all  long overall       cmr
+png(
+  "figures/all_long_overall_cmr.png",  
+  height=20, width=40,
+  res=300, units="cm"
+)
+
+expected_europe  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age <=90 & 
+           year >=1950 & year <=2011 & 
+           region =="All") %>%   
+  plot_lgcmr(., CUTS = 20) %>% print
+
+dev.off()
+
+
+# 4  2011  long overall       cmr
+png(
+  "figures/2011_long_overall_cmr.png",  
+  height=20, width=40,
+  res=300, units="cm"
+)
+
+expected_europe_2011  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age <=90 & 
+           year >=1950 & year <=2011 & 
+           region =="All") %>%   
+  plot_lgcmr(., CUTS = 20) %>% print
+
+dev.off()
+
+
+# 5   all short lattice       cmr
+
+png(
+  "figures/all_short_lattice_cmr.png",  
+  height=20, width=40,
+  res=300, units="cm"
+)
+
+expected_europe  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age >= 20  & age <=40 & 
+           year >=1970 & year <=2011  
+           ) %>%   
+  plot_region_lgcmr(.) %>% print
+
+dev.off()
+
+# 6  2011 short lattice       cmr
+
+png(
+  "figures/2011_short_lattice_cmr.png",  
+  height=20, width=40,
+  res=300, units="cm"
+)
+
+expected_europe_2011  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age >= 20  & age <=50 & 
+           year >=1970 & year <=2010  
+  ) %>%   
+  plot_smoothed_region_lgcmr(., EDGE = 3) %>% 
+  print
+
+dev.off()
+
+# 7   all  long lattice       cmr
+
+png(
+  "figures/all_long_lattice_cmr.png",  
+  height=40, width=40,
+  res=300, units="cm"
+)
+
+expected_europe  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age <= 90 & 
+           year >=1950 & year <=2009  
+  ) %>%   
+  plot_smoothed_region_lgcmr(., EDGE = 3) %>% 
+  print
+
+dev.off()
+
+
+# 8  2011  long lattice       cmr
+
+png(
+  "figures/all_long_lattice_cmr.png",  
+  height=40, width=40,
+  res=300, units="cm"
+)
+
+expected_europe_2011  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age <= 90 & 
+           year >=1950 & year <=2011  
+  ) %>%   
+  plot_smoothed_region_lgcmr(., EDGE = 3) %>% 
+  print
+
+dev.off()
+
+# 9   all short overall       ppr
+
+png(
+  "figures/all_short_overall_ppr.png",  
+  height=40, width=40,
+  res=300, units="cm"
+)
+
+expected_europe  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age >= 20 & age <= 50 & 
+           year >=1970 & year <=2011  
+  ) %>%   
+  plot_ppr(., COL = "grey") %>% 
+  print
+
+dev.off()
+
+# 10 2011 short overall       ppr
+
+png(
+  "figures/2011_short_overall_ppr.png",  
+  height=40, width=40,
+  res=300, units="cm"
+)
+
+expected_europe_2011  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age >= 20 & age <= 50 & 
+           year >=1970 & year <=2011  
+  ) %>%   
+  plot_ppr(., COL = "grey") %>% 
+  print
+
+dev.off()
+
+# 11  all  long overall       ppr
+
+png(
+  "figures/all_long_overall_ppr.png",  
+  height=40, width=40,
+  res=300, units="cm"
+)
+
+expected_europe  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age <= 90 & 
+           year >=1950 & year <=2011  
+  ) %>%   
+  plot_ppr_level(.) %>% 
+  print
+
+dev.off()
+
+
+# 12 2011  long overall       ppr
+
+png(
+  "figures/2011_long_overall_ppr.png",  
+  height=40, width=40,
+  res=300, units="cm"
+)
+
+expected_europe_2011  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age <= 90 & 
+           year >=1950 & year <=2011  
+  ) %>%   
+  plot_ppr_level(.) %>% 
+  print
+
+dev.off()
+
+# 13  all short lattice       ppr
+png(
+  "figures/all_short_lattice_ppr.png",  
+  height=25, width=50,
+  res=300, units="cm"
+)
+
+expected_europe  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age >= 20 & age <= 50 & 
+           year >=1970 & year <=2011  
+  ) %>%   
+  plot_level_region_ppr(. , 
+                        LIMS = seq(from= -34, to = 34, by=2)                 
+                        
+                        ) %>% 
+  print
+
+dev.off()
+
+# 14 2011 short lattice       ppr
+
+png(
+  "figures/2011_short_lattice_ppr.png",  
+  height=25, width=50,
+  res=300, units="cm"
+)
+
+expected_europe_2011  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age >= 20 & age <= 50 & 
+           year >=1970 & year <=2011  
+  ) %>%   
+  plot_level_region_ppr(. , 
+                        LIMS = seq(from= -40, to = 40, by=2)                 
+                        
+  ) %>% 
+  print
+
+dev.off()
+
+# 15  all  long lattice       ppr
+png(
+  "figures/all_long_lattice_ppr.png",  
+  height=40, width=50,
+  res=300, units="cm"
+)
+
+expected_europe  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age <= 90 & 
+           year >= 1950 & year <=2009  
+  ) %>%   
+  plot_smoothed_region_ppr(. , COL = "grey",
+                        LIMS = seq(from= -30, to = 30, by=5)                 
+                        
+  ) %>% 
+  print
+
+dev.off()
+
+
+# 16 2011  long lattice       ppr
+
+png(
+  "figures/2011_long_lattice_ppr.png",  
+  height=40, width=50,
+  res=300, units="cm"
+)
+
+expected_europe_2011  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age <= 90 & 
+           year >= 1950 & year <=2011  
+  ) %>%   
+  plot_level_region_ppr(. , 
+                           LIMS = seq(from= -35, to = 35, by=5)                 
+                           
+  ) %>% 
+  print
+
+dev.off()
+
+# 17  all short overall composite
+
+png(
+  "figures/all_short_overall_composite.png",  
+  height=25, width=40,
+  res=300, units="cm"
+)
+
+expected_europe  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age >= 20 & age <= 50 & 
+           year >= 1970 & year <=2009  &
+           region =="All"
+  ) %>%   
+  plot_composite(.       
+  ) %>% 
+  print
+
+dev.off()
+
+# 18 2011 short overall composite
+png(
+  "figures/2011_short_overall_composite.png",  
+  height=25, width=40,
+  res=300, units="cm"
+)
+
+expected_europe_2011  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age >= 20 & age <= 50 & 
+           year >= 1970 & year <=2009  &
+           region =="All"
+  ) %>%   
+  plot_composite(.       
+  ) %>% 
+  print
+
+dev.off()
+
+# 19  all  long overall composite
+png(
+  "figures/all_long_overall_composite.png",  
+  height=40, width=40,
+  res=300, units="cm"
+)
+
+expected_europe  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age <= 80 & 
+           year >= 1950 & year <=2009  &
+           region =="All"
+  ) %>%   
+  plot_composite(.       
+  ) %>% 
+  print
+
+dev.off()
+
+
+# 20 2011  long overall composite
+png(
+  "figures/2011_long_overall_composite.png",  
+  height=30, width=40,
+  res=300, units="cm"
+)
+
+expected_europe_2011  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age <= 80 & 
+           year >= 1950 & year <=2011  &
+           region =="All"
+  ) %>%   
+  plot_composite(.       
+  ) %>% 
+  print
+
+dev.off()
+
+# 21  all short lattice composite
+
+png(
+  "figures/all_short_lattice_composite.png",  
+  height=30, width=40,
+  res=300, units="cm"
+)
+
+expected_europe  %>% 
+  filter(!is.na(expected_count))  %>% 
+  filter(sex!="total" & 
+           age >= 20 & age <= 50 & 
+           year >= 1950 & year <=2009  &
+           region =="All"
+  ) %>%   
+  plot_region_lcomposite(.       
+  ) %>% 
+  print
+
+dev.off()
+
+
+# 22 2011 short lattice composite
+
+# 23  all  long lattice composite
+
+# 24 2011  long lattice composite
+
+# 25  all short overall      cors
+
+# 26 2011 short overall      cors
+
+# 27  all  long overall      cors
+
+# 28 2011  long overall      cors
+
+# 29  all short lattice      cors
+
+# 30 2011 short lattice      cors
+
+# 31  all  long lattice      cors
+
+# 32 2011  long lattice      cors
+
 # SCPs --------------------------------------------------------------------
 
 png(

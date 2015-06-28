@@ -36,6 +36,41 @@ plot_ppr <- function(
 return(output)  
 }
 
+plot_ppr_level <- function(
+  DTA,
+  LIMS = seq(from= -20, to = 20, by=2),                 
+  COLS_TO_USE = brewer.pal(5, "RdBu"),
+  ASPECT = "iso"
+){
+  DTA <- DTA %>% 
+    mutate(residual_prop = 1000 *(population_count - expected_count)/ expected_count)   
+  mx <- max(abs(DTA$residual_prop))
+  cols_to_use.fn <- colorRampPalette(COLS_TO_USE)
+  
+  output <- levelplot(
+    residual_prop ~ year * age | sex, 
+    data=DTA, 
+    at = LIMS,
+    
+    col.regions=rev(cols_to_use.fn(200)), 
+    main=NULL,
+    
+    aspect = ASPECT,
+    strip=strip.custom(par.strip.text=list(cex=1.4, fontface="bold"), bg="grey"),
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
+    cex=1.4,
+    labels=list(cex=1.2),
+    scales=list(
+      x=list(cex=1.4), 
+      y=list(cex=1.4),
+      alternating=3
+    )
+  )
+  
+  return(output)  
+}
+
 
 plot_smoothed_ppr <- function(
   DTA,
@@ -168,6 +203,40 @@ plot_smoothed_region_ppr <- function(
   return(output)  
 }
 
+plot_level_region_ppr <- function(
+  DTA,
+  LIMS = seq(from= -20, to = 20, by=2),                 
+  COLS_TO_USE = brewer.pal(5, "RdBu"),
+  ASPECT = "iso"
+){
+  DTA <- DTA %>% 
+    mutate(residual_prop = 1000 *(population_count - expected_count)/ expected_count)   
+  
+  mx <- max(abs(DTA$residual_prop))
+  cols_to_use.fn <- colorRampPalette(COLS_TO_USE)
+  
+  
+  output <- levelplot(
+    residual_prop ~ year * age | region + sex, 
+    data=DTA, 
+    region=T, 
+    at=LIMS,
+    aspect = ASPECT,
+    col.regions=rev(cols_to_use.fn(200)), 
+    main=NULL,
+    strip=strip.custom(par.strip.text=list(cex=1.4, fontface="bold"), bg="grey"),
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
+    cex=1.4,
+    scales=list(
+      x=list(cex=1.4), 
+      y=list(cex=1.4),
+      alternating=3
+    )
+  )
+  
+  return(output)  
+}
 
   
 # Lexis surface helper functions
@@ -176,7 +245,8 @@ plot_lgcmr <- function(
   DTA,
   COL = "black",
   COLS_TO_USE =colorRampPalette(brewer.pal(9, "Greens"))(100),
-  ASPECT = "iso"
+  ASPECT = "iso",
+  CUTS = 15
 ){
   DTA <- DTA %>% 
     mutate(cmr = death_count / population_count,
@@ -191,7 +261,7 @@ plot_lgcmr <- function(
       ylab=list(label="Age in years", cex=1.4),
       xlab=list(label="Year", cex=1.4),
       cex=1.4,
-      cuts=15,
+      cuts=CUTS,
       col.regions=COLS_TO_USE,
       main=NULL,
       labels=list(cex=1.2),
@@ -214,7 +284,8 @@ plot_region_lgcmr <- function(
   COL = "black",
   COLS_TO_USE =colorRampPalette(brewer.pal(9, "Greens"))(100),
   ASPECT = "iso",
-  SMOOTH_PAR = 1.3
+  SMOOTH_PAR = 1.3,
+  CUTS = 15
 ){
   DTA <- DTA %>% 
     mutate(cmr = death_count / population_count,
@@ -229,7 +300,7 @@ plot_region_lgcmr <- function(
     ylab=list(label="Age in years", cex=1.4),
     xlab=list(label="Year", cex=1.4),
     cex=1.4,
-    cuts=15,
+    cuts=CUTS,
     col.regions=COLS_TO_USE,
     main=NULL,
     labels=list(cex=1.2),
@@ -254,7 +325,8 @@ plot_smoothed_region_lgcmr <- function(
   COLS_TO_USE =colorRampPalette(brewer.pal(9, "Greens"))(100),
   ASPECT = "iso",
   SMOOTH_PAR = 1.3, 
-  EDGE = 2
+  EDGE = 2,
+  CUTS = 15
 ){
   DTA <- DTA %>% 
     mutate(cmr = death_count / population_count,
@@ -273,7 +345,7 @@ plot_smoothed_region_lgcmr <- function(
     ylab=list(label="Age in years", cex=1.4),
     xlab=list(label="Year", cex=1.4),
     cex=1.4,
-    cuts=15,
+    cuts=CUTS,
     col.regions=COLS_TO_USE,
     main=NULL,
     labels=list(cex=1.2),
@@ -299,7 +371,7 @@ plot_smoothed_region_lgcmr <- function(
     ylab="", 
     xlab="",
     cex=1.4,
-    cuts=15,
+    cuts=CUTS,
     main=NULL,
     aspect = ASPECT,
     labels=list(cex=1.2),
