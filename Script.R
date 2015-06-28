@@ -563,8 +563,13 @@ local_corrs_all <-   expected_europe %>%
             year >= 1960 & year <=2009 & 
             sex != "total" & region == "All")  %>% 
   do(calc_windowed_correlations(. , WINDOW = 6))
-
+png(
+  "figures/all_long_overall_corrs.png",  
+  height=40, width=60,
+  res=300, units="cm"
+)
 local_corrs_all %>% plot_local_cor(.) %>% print
+dev.off()
 
 # 28 2011  long overall      cors
 local_corrs_2011 <-   expected_europe_2011 %>% 
@@ -572,9 +577,14 @@ local_corrs_2011 <-   expected_europe_2011 %>%
             year >= 1960 & year <=2011 & 
             sex != "total" & region =="All")  %>% 
   do(calc_windowed_correlations(. , WINDOW = 6))
+png(
+  "figures/2011_long_overall_corrs.png",  
+  height=40, width=60,
+  res=300, units="cm"
+)
 
 local_corrs_2011 %>% plot_local_cor(.) %>% print
-
+dev.off()
 # 31 all  long lattice      cors
 local_corrs_region_all <-   expected_europe %>% 
   filter( age >= 0 & age <= 80 & 
@@ -582,7 +592,14 @@ local_corrs_region_all <-   expected_europe %>%
             sex != "total" )  %>% 
   group_by(region) %>% do(calc_windowed_correlations(. , WINDOW = 6))
 
+png(
+  "figures/all_long_lattice_corrs.png",  
+  height=40, width=60,
+  res=300, units="cm"
+)
+
 local_corrs_region_all %>% plot_local_cor_region(.) %>% print
+dev.off()
 
 # 32 2011  long lattice      cors
 local_corrs_region_2011 <-   expected_europe_2011 %>% 
@@ -591,7 +608,13 @@ local_corrs_region_2011 <-   expected_europe_2011 %>%
             sex != "total" )  %>% 
   group_by(region) %>% do(calc_windowed_correlations(. , WINDOW = 6))
 
+png(
+  "figures/2011_long_lattice_corrs.png",  
+  height=40, width=60,
+  res=300, units="cm"
+)
 local_corrs_region_2011 %>% plot_local_cor_region(.) %>% print
+dev.off()
 
 # SCPs --------------------------------------------------------------------
 
