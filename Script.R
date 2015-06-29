@@ -550,7 +550,8 @@ expected_europe_2011  %>%
            age <= 80 & 
            year >= 1950 & year <=2011 
   ) %>%   
-  plot_region_composite(.       
+  plot_region_composite(. , LIMS = seq(-40, 40, by=4)
+                        
   ) %>% 
   print
 
