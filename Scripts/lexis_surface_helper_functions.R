@@ -5,11 +5,18 @@ plot_ppr <- function(
   LIMS = seq(from= -20, to = 20, by=2),                 
   COL = "black",
   COLS_TO_USE = brewer.pal(5, "RdBu"),
-  ASPECT = "iso"
+  ASPECT = "iso",
+  FLATTEN = T
 ){
   DTA <- DTA %>% 
-    mutate(residual_prop = 1000 *(population_count - expected_count)/ expected_count)   
-  mx <- max(abs(DTA$residual_prop))
+    mutate(residual_prop = 1000 *(population_count - expected_count)/ expected_count)
+  if (FLATTEN){
+    DTA <- DTA %>% 
+      mutate(
+        residual_prop = ifelse(residual_prop < min(LIMS), min(LIMS), residual_prop),
+        residual_prop = ifelse(residual_prop > max(LIMS), max(LIMS), residual_prop)
+      )
+  }  
   cols_to_use.fn <- colorRampPalette(COLS_TO_USE)
   
   output <- contourplot(
@@ -40,11 +47,19 @@ plot_ppr_level <- function(
   DTA,
   LIMS = seq(from= -20, to = 20, by=2),                 
   COLS_TO_USE = brewer.pal(5, "RdBu"),
-  ASPECT = "iso"
+  ASPECT = "iso",
+  FLATTEN = T
 ){
   DTA <- DTA %>% 
     mutate(residual_prop = 1000 *(population_count - expected_count)/ expected_count)   
-  mx <- max(abs(DTA$residual_prop))
+  if (FLATTEN){
+    DTA <- DTA %>% 
+      mutate(
+        residual_prop = ifelse(residual_prop < min(LIMS), min(LIMS), residual_prop),
+        residual_prop = ifelse(residual_prop > max(LIMS), max(LIMS), residual_prop)
+      )
+  }  
+  
   cols_to_use.fn <- colorRampPalette(COLS_TO_USE)
   
   output <- levelplot(
@@ -78,12 +93,20 @@ plot_smoothed_ppr <- function(
   COL = "black",
   COLS_TO_USE = brewer.pal(5, "RdBu"),
   SMOOTH_PAR = 1.3,
-  ASPECT = "iso"
+  ASPECT = "iso",
+  FLATTEN = T
 ){
   DTA <- DTA %>% 
     mutate(residual_prop = 1000 *(population_count - expected_count)/ expected_count)   
   
-  mx <- max(abs(DTA$residual_prop))
+  if (FLATTEN){
+    DTA <- DTA %>% 
+      mutate(
+        residual_prop = ifelse(residual_prop < min(LIMS), min(LIMS), residual_prop),
+        residual_prop = ifelse(residual_prop > max(LIMS), max(LIMS), residual_prop)
+      )
+  }  
+  
   cols_to_use.fn <- colorRampPalette(COLS_TO_USE)
   
   dta_smoothed <- DTA %>% 
@@ -144,12 +167,20 @@ plot_smoothed_region_ppr <- function(
   COL = "black",
   COLS_TO_USE = brewer.pal(5, "RdBu"),
   SMOOTH_PAR = 1.3,
-  ASPECT = "iso"
+  ASPECT = "iso",
+  FLATTEN = T
 ){
   DTA <- DTA %>% 
     mutate(residual_prop = 1000 *(population_count - expected_count)/ expected_count)   
   
-  mx <- max(abs(DTA$residual_prop))
+  if (FLATTEN){
+    DTA <- DTA %>% 
+      mutate(
+        residual_prop = ifelse(residual_prop < min(LIMS), min(LIMS), residual_prop),
+        residual_prop = ifelse(residual_prop > max(LIMS), max(LIMS), residual_prop)
+      )
+  }  
+  
   cols_to_use.fn <- colorRampPalette(COLS_TO_USE)
   
   dta_smoothed <- DTA %>% 
@@ -207,12 +238,20 @@ plot_level_region_ppr <- function(
   DTA,
   LIMS = seq(from= -20, to = 20, by=2),                 
   COLS_TO_USE = brewer.pal(5, "RdBu"),
-  ASPECT = "iso"
+  ASPECT = "iso",
+  FLATTEN = T
 ){
   DTA <- DTA %>% 
     mutate(residual_prop = 1000 *(population_count - expected_count)/ expected_count)   
   
-  mx <- max(abs(DTA$residual_prop))
+  if (FLATTEN){
+    DTA <- DTA %>% 
+      mutate(
+        residual_prop = ifelse(residual_prop < min(LIMS), min(LIMS), residual_prop),
+        residual_prop = ifelse(residual_prop > max(LIMS), max(LIMS), residual_prop)
+      )
+  }  
+  
   cols_to_use.fn <- colorRampPalette(COLS_TO_USE)
   
   
@@ -393,7 +432,8 @@ plot_composite <- function(
   COLS_TO_USE = brewer.pal(5, "RdBu"),
   ASPECT = "iso",
   LIMS = seq(from= -20, to = 20, by=2),
-  CUTS = 15
+  CUTS = 15,
+  FLATTEN = T
                            
 ){
   
@@ -404,6 +444,14 @@ plot_composite <- function(
       cmr = death_count / population_count,
       lg_cmr = log(cmr, base = 10)
   )
+  
+  if (FLATTEN){
+    DTA <- DTA %>% 
+      mutate(
+        residual_prop = ifelse(residual_prop < min(LIMS), min(LIMS), residual_prop),
+        residual_prop = ifelse(residual_prop > max(LIMS), max(LIMS), residual_prop)
+      )
+  }  
   
   
   mx <- max(abs(DTA$residual_prop))
@@ -460,7 +508,8 @@ plot_region_composite <- function(
   COLS_TO_USE = brewer.pal(5, "RdBu"),
   ASPECT = "iso",
   LIMS = seq(from= -20, to = 20, by=2),
-  CUTS = 15
+  CUTS = 15,
+  FLATTEN = T
   
 ){
   
@@ -471,6 +520,13 @@ plot_region_composite <- function(
       cmr = death_count / population_count,
       lg_cmr = log(cmr, base = 10)
     )
+  if (FLATTEN){
+    DTA <- DTA %>% 
+      mutate(
+        residual_prop = ifelse(residual_prop < min(LIMS), min(LIMS), residual_prop),
+        residual_prop = ifelse(residual_prop > max(LIMS), max(LIMS), residual_prop)
+      )
+  }  
   
   
   mx <- max(abs(DTA$residual_prop))
