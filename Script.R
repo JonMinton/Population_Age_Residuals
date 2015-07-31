@@ -389,7 +389,7 @@ expected_europe_2011  %>%
            year >= 1950 & year <=2011  
   ) %>%   
   plot_level_region_ppr(. , 
-                           LIMS = seq(from= -40, to = 40, by=5)                 
+                           LIMS = seq(from= -40, to = 40, by=2)                 
                            
   ) %>% 
   print
@@ -493,7 +493,7 @@ expected_europe  %>%
            year >= 1970 & year <=2009 
   ) %>%   
   plot_region_composite(. ,
-                        LIMS = seq(from= -40, to = 40, by=5)  
+                        LIMS = seq(from= -40, to = 40, by=2)  
   ) %>% 
   print
 
