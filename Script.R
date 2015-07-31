@@ -127,7 +127,7 @@ expected_europe  %>%
   filter(!is.na(expected_count))  %>% 
   filter(sex!="total" & 
            age <=90 & 
-           year >=1950 & year <=2011 & 
+           year >=1950 & year <=2009 & 
            region =="All") %>%   
   plot_lgcmr(., CUTS = 20) %>% print
 
@@ -163,8 +163,8 @@ png(
 expected_europe  %>% 
   filter(!is.na(expected_count))  %>% 
   filter(sex!="total" & 
-           age >= 20  & age <=40 & 
-           year >=1970 & year <=2011  
+           age >= 20  & age <=50 & 
+           year >=1970 & year <=2009  
            ) %>%   
   plot_region_lgcmr(.) %>% print
 
@@ -182,9 +182,9 @@ expected_europe_2011  %>%
   filter(!is.na(expected_count))  %>% 
   filter(sex!="total" & 
            age >= 20  & age <=50 & 
-           year >=1970 & year <=2010  
+           year >=1970 & year <=2011  
   ) %>%   
-  plot_smoothed_region_lgcmr(., EDGE = 3) %>% 
+  plot_smoothed_region_lgcmr(., EDGE = 2) %>% 
   print
 
 dev.off()
@@ -280,7 +280,7 @@ expected_europe  %>%
   filter(!is.na(expected_count))  %>% 
   filter(sex!="total" & 
            age <= 90 & 
-           year >=1950 & year <=20091 & 
+           year >=1950 & year <=2009 & 
            region =="All"
   ) %>%   
   plot_ppr_level(.) %>% 
@@ -323,7 +323,7 @@ expected_europe  %>%
            year >=1970 & year <=2009  
   ) %>%   
   plot_level_region_ppr(. , 
-                        LIMS = seq(from= -34, to = 34, by=2)                 
+                        LIMS = seq(from= -30, to = 30, by=2)                 
                         
                         ) %>% 
   print
@@ -366,7 +366,7 @@ expected_europe  %>%
            year >= 1950 & year <=2009  
   ) %>%   
   plot_smoothed_region_ppr(. , COL = "grey",
-                        LIMS = seq(from= -35, to = 35, by=5)                 
+                        LIMS = seq(from= -30, to = 30, by=2)                 
                         
   ) %>% 
   print
@@ -492,7 +492,8 @@ expected_europe  %>%
            age >= 20 & age <= 50 & 
            year >= 1970 & year <=2009 
   ) %>%   
-  plot_region_composite(.       
+  plot_region_composite(. ,
+                        LIMS = seq(from= -40, to = 40, by=5)  
   ) %>% 
   print
 
@@ -513,7 +514,8 @@ expected_europe_2011  %>%
            age >= 20 & age <= 50 & 
            year >= 1970 & year <=2011 
   ) %>%   
-  plot_region_composite(. 
+  plot_region_composite(. ,
+                        LIMS = seq(from= -30, to = 30, by=2)  
   ) %>% 
   print
 
@@ -534,7 +536,8 @@ expected_europe  %>%
            age <= 90 & 
            year >= 1950 & year <=2009 
   ) %>%   
-  plot_region_composite(.       
+  plot_region_composite(. ,
+        LIMS = seq(from= -30, to = 30, by=2)  
   ) %>% 
   print
 
@@ -554,7 +557,9 @@ expected_europe_2011  %>%
            age <= 90 & 
            year >= 1950 & year <=2011 
   ) %>%   
-  plot_region_composite(. 
+  plot_region_composite(. ,
+
+                        LIMS = seq(from= -40, to = 40, by=2)  
                         
   ) %>% 
   print
